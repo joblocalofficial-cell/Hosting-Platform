@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ประกาศงาน – JobLocal</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:560px;margin:auto;padding:18px}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    img{width:56px;height:56px;border-radius:50%;background:#eee}
+    label{display:block;margin:10px 0 6px}
+    input,select,button,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px}
+    button{margin-top:14px}
+    small{color:#666}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .status{margin-top:10px;font-size:14px}
+  </style>
+</head>
+<body>
+  <header>
+    <img id="avatar" alt="">
+    <div>
+      <div id="hello">กำลังเชื่อมต่อ LINE...</div>
+      <small id="uid">userId: -</small>
+    </div>
+  </header>
+
+  <form id="f">
+    <label>บริษัท / องค์กร (หรือชื่อผู้ว่าจ้าง)</label>
+    <input name="company_or_org" required>
+
+    <div class="row">
+      <div>
+        <label>ชื่อติดต่อ</label>
+        <input name="contact_person" required>
+      </div>
+      <div>
+        <label>โทรศัพท์ติดต่อ</label>
+        <input name="contact_phone" type="tel" inputmode="tel" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>ชื่อตำแหน่ง</label>
+        <input name="job_title" required>
+      </div>
+      <div>
+        <label>หมวดงาน</label>
+        <input name="job_category" placeholder="เช่น งานขาย (Sales)">
+      </div>
+    </div>
+
+    <label>รายละเอียดงาน</label>
+    <textarea name="job_description" rows="3" placeholder="อธิบายหน้าที่/คุณสมบัติ"></textarea>
+
+    <div class="row">
+      <div>
+        <label>สถานที่ทำงาน / ที่ตั้ง</label>
+        <input name="location_area" placeholder="เช่น เมืองปทุมธานี / ธรรมศาสตร์ / สามโคก">
+      </div>
+      <div>
+        <label>อำเภอ/เขต (ปทุมธานี)</label>
+        <input name="district" placeholder="เช่น เมืองปทุมธานี">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>จำนวนที่รับ</label>
+        <input name="headcount" type="number" min="1" value="1">
+      </div>
+      <div>
+        <label>ค่าจ้าง / รูปแบบการจ่าย</label>
+        <input name="wage" placeholder="เช่น ชั่วโมงละ 50 บาท / วันละ 500 บาท">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>วันที่เริ่มงาน (ถ้ามี)</label>
+        <input name="start_date" type="date">
+      </div>
+      <div>
+        <label>เวลาเริ่มงาน</label>
+        <input name="start_time" type="time">
+      </div>
+    </div>
+
+    <label>ความเร่งด่วน</label>
+    <select name="urgency">
+      <option value="">-</option>
+      <option>เริ่มได้ทันที</option>
+      <option>ภายใน 7 วัน</option>
+      <option>ภายใน 14 วัน</option>
+      <option>ภายใน 1 เดือน</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label>LINE ID ผู้ติดต่อ</label>
+        <input name="contact_line_id" placeholder="ถ้ามี">
+      </div>
+      <div>
+        <label>ยืนยัน PDPA</label>
+        <select name="consent_pdpa" required>
+          <option value="">-</option>
+          <option selected>ยอมรับและยินยอม</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="submitBtn" type="submit" disabled>กำลังเชื่อมต่อ LINE…</button>
+    <div id="status" class="status"></div>
+  </form>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+  const LIFF_ID = "2008394776-k9v7m3Wg"; 
+  const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbz3rL6bZf13avYEKvGaHQbh3jmaOzGHvyCD_27_bIMkPcPmgOnN1JGL6PmiYEXuMKYk/exec";
+
+  const $ = id => document.getElementById(id);
+
+  // ตัวแปรสำหรับเก็บข้อมูลโปรไฟล์ผู้ใช้
+  let userProfile = {};
+  let userIdToken = '';
+
+  (async () => {
+    try {
+      await liff.init({ liffId: LIFF_ID });
+
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+      
+      userIdToken = liff.getIDToken();
+
+      // **จุดที่แก้ไข: ใช้ .then() แทน await และเพิ่มการจัดการข้อผิดพลาด**
+      liff.getProfile().then(p => {
+          userProfile = p; // เก็บข้อมูลโปรไฟล์ไว้ในตัวแปรภายนอก
+          $("avatar").src = p.pictureUrl || '';
+          $("hello").textContent = `สวัสดี ${p.displayName}`;
+          $("uid").textContent   = `userId: ${p.userId}`;
+          $("submitBtn").textContent = "ส่งประกาศงาน";
+          $("submitBtn").disabled = false;
+      }).catch(err => {
+          // ถ้าดึงโปรไฟล์ไม่ได้ จะแสดงข้อความแจ้งเตือนทันที
+          $("hello").textContent = "❌ ดึงโปรไฟล์ไม่ได้! (ตรวจ Scope: profile)";
+          $("uid").textContent = "Error: " + err.message;
+          $("submitBtn").textContent = "ไม่สามารถส่งข้อมูลได้";
+          console.error("Error getting profile:", err);
+      });
+      // **สิ้นสุดจุดที่แก้ไข**
+
+      const form = $("f"), btn = $("submitBtn"), status = $("status");
+      
+      // อัปเดตข้อความปุ่มในกรณีที่ยังดึงโปรไฟล์ไม่เสร็จ (ก่อน .then)
+      if (userProfile.userId) { // ถ้าโปรไฟล์ดึงได้เร็ว
+          btn.textContent = "ส่งประกาศงาน";
+      } else { // ถ้าโปรไฟล์กำลังโหลด
+          btn.textContent = "กำลังโหลดโปรไฟล์...";
+          // ปุ่มจะถูกเปิดเมื่อ .then ทำงานสำเร็จ
+      }
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!userIdToken) { status.textContent = "ไม่พบ ID Token (ตรวจ scope: openid)"; return; }
+        if (!userProfile.userId) { status.textContent = "ไม่พบข้อมูลโปรไฟล์ (รอโหลด/ตรวจ scope: profile)"; return; }
+        
+        btn.disabled = true;
+        status.textContent = "กำลังส่งข้อมูล…";
+
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const res = await fetch(GAS_ENDPOINT, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ idToken: userIdToken, profile: userProfile, data }) // ใช้ตัวแปรที่เก็บค่าไว้
+          });
+          const json = await res.json();
+          if (json.ok) {
+            status.textContent = "✅ ส่งสำเร็จ!";
+            setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 700);
+          } else {
+            status.textContent = "❌ ส่งไม่สำเร็จ: " + (json.error || "unknown");
+            btn.disabled = false;
+          }
+        } catch (err) {
+          status.textContent = "❌ เครือข่ายผิดพลาด";
+          btn.disabled = false;
+        }
+      });
+
+    } catch (e) {
+      console.error(e);
+      $("hello").textContent = "ไม่สามารถโหลด LIFF ได้";
+      $("uid").textContent   = "";
+      $("submitBtn").disabled = true;
+      $("submitBtn").textContent = "LIFF Error";
+    }
+  })();
+  </script>
+</body>
+</html>
