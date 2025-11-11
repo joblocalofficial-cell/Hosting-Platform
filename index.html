@@ -167,25 +167,32 @@
                 <textarea id="job_description" name="job_description" rows="3" placeholder="อธิบายหน้าที่/คุณสมบัติโดยละเอียด"></textarea>
             </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label for="location_area">สถานที่ทำงาน / ที่ตั้ง (พิมพ์)</label>
-                    <input id="location_area" name="location_area" placeholder="เช่น โซนธรรมศาสตร์/สามโคก">
-                    <small>📌 ยังไม่รองรับ Google Map</small>
-                </div>
-                <div class="form-group">
-                    <label for="district">อำเภอ/เขต (ในปทุมธานี)</label>
-                    <select id="district" name="district" required>
-                        <option value="" disabled selected>--- เลือกอำเภอ ---</option>
-                        <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
-                        <option value="คลองหลวง">คลองหลวง</option>
-                        <option value="ธัญบุรี">ธัญบุรี</option>
-                        <option value="หนองเสือ">หนองเสือ</option>
-                        <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
-                        <option value="ลำลูกกา">ลำลูกกา</option>
-                        <option value="สามโคก">สามโคก</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label for="location_area">สถานที่ทำงาน / ที่ตั้ง</label>
+                <input id="location_area" name="location_area" placeholder="พิมพ์ชื่อสถานที่ หรือใช้ตำแหน่งปัจจุบัน" required>
+                
+                <button type="button" id="getLocationBtn" style="margin-top: 5px; background-color: #f7a040; color: #333; font-size: 0.9em; padding: 10px;">
+                    📍 ใช้ตำแหน่งปัจจุบัน
+                </button>
+
+                <div class="hint" id="locationStatus" style="color: #008800; margin-top: 5px; margin-bottom: 0;">*ถ้ากด "ใช้ตำแหน่งปัจจุบัน" ข้อมูลจะใช้ Lat/Lng แทน</div>
+                
+                <input type="hidden" name="location_lat" id="location_lat">
+                <input type="hidden" name="location_lng" id="location_lng">
+            </div>
+
+            <div class="form-group">
+                <label for="district">อำเภอ/เขต (ในปทุมธานี)</label>
+                <select id="district" name="district" required>
+                    <option value="" disabled selected>--- เลือกอำเภอ ---</option>
+                    <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
+                    <option value="คลองหลวง">คลองหลวง</option>
+                    <option value="ธัญบุรี">ธัญบุรี</option>
+                    <option value="หนองเสือ">หนองเสือ</option>
+                    <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
+                    <option value="ลำลูกกา">ลำลูกกา</option>
+                    <option value="สามโคก">สามโคก</option>
+                </select>
             </div>
 
             <div class="row">
@@ -275,7 +282,6 @@
 
     <script>
         // --- CONFIG ---
-        // เปลี่ยนกลับเป็น ID เก่าตามคำสั่ง
         const LIFF_ID = "2008394776-k9v7m3Wg"; 
         const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbz3rL6bZf13avYEKvGaHQbh3jmaOzGHvyCD_27_bIMkPcPmgOnN1JGL6PmiYEXuMKYk/exec";
         // --- End CONFIG ---
@@ -287,7 +293,7 @@
         let userProfile = {};
         let userIdToken = '';
 
-        // --- UI Logic (การแสดง/ซ่อนช่อง Input) ---
+        // --- UI Elements ---
         const userTypeSelect = $("user_type");
         const jobTitleSelect = $("job_title_select");
         const jobTitleOtherGroup = $("job_title_other_group");
@@ -296,6 +302,14 @@
         const pdpaModal = $("pdpaModal");
         const showPdpaModalBtn = $("showPdpaModal");
         const closePdpaModalBtn = $("closePdpaModal");
+        
+        // --- Location Elements ---
+        const getLocationBtn = $("getLocationBtn");
+        const locationAreaInput = $("location_area");
+        const locationLatInput = $("location_lat");
+        const locationLngInput = $("location_lng");
+        const locationStatus = $("locationStatus");
+
 
         // --- PDPA Modal Handlers ---
         showPdpaModalBtn.addEventListener('click', () => {
@@ -328,6 +342,43 @@
                 jobTitleOtherGroup.classList.add('hidden');
                 jobTitleOtherInput.required = false;
             }
+        });
+
+        // --- LIFF Location Handler ---
+        getLocationBtn.addEventListener('click', () => {
+            if (!liff.isInClient()) {
+                locationStatus.textContent = "❌ ใช้ฟังก์ชันนี้ได้เฉพาะในแอป LINE เท่านั้น";
+                locationStatus.style.color = '#cc0000';
+                return;
+            }
+
+            // ถ้า Location API ถูกเรียกใช้
+            locationStatus.textContent = "กำลังดึงตำแหน่ง... (กรุณาอนุญาต)";
+            locationStatus.style.color = '#f7a040';
+            getLocationBtn.disabled = true;
+
+            liff.getLocation().then(location => {
+                if (location) {
+                    locationLatInput.value = location.latitude;
+                    locationLngInput.value = location.longitude;
+                    
+                    // อัปเดตช่องแสดงผลให้รู้ว่ามีการปักหมุดแล้ว
+                    locationAreaInput.value = `ตำแหน่ง (Lat: ${location.latitude.toFixed(4)}, Lng: ${location.longitude.toFixed(4)})`;
+                    locationAreaInput.required = true;
+
+                    locationStatus.textContent = "✅ ดึงตำแหน่งสำเร็จ! (ใช้ Lat/Lng)";
+                    locationStatus.style.color = '#008800';
+                } else {
+                    locationStatus.textContent = "❌ ไม่สามารถดึงตำแหน่งได้ (โปรดเปิด GPS และอนุญาต)";
+                    locationStatus.style.color = '#cc0000';
+                }
+            }).catch(err => {
+                locationStatus.textContent = `❌ เกิดข้อผิดพลาด: ${err.message}`;
+                locationStatus.style.color = '#cc0000';
+                console.error("Location error:", err);
+            }).finally(() => {
+                getLocationBtn.disabled = false;
+            });
         });
 
         // --- LIFF & Form Submission Logic ---
@@ -387,7 +438,7 @@
                     // ลบ field ที่ไม่ต้องการส่งไป GAS (เช่น select/input 'อื่นๆ' ที่ไม่ได้ใช้)
                     formData.delete('job_title_select');
                     formData.delete('job_title_other');
-                    // เปลี่ยนชื่อ pdpa_confirm ให้สั้นลงถ้าจำเป็น
+                    // เปลี่ยนชื่อ pdpa_confirm
                     formData.set('pdpa_consent', formData.get('consent_pdpa') ? 'ยอมรับ' : 'ไม่ยอมรับ');
                     formData.delete('consent_pdpa');
                     
