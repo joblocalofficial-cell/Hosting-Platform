@@ -40,6 +40,23 @@
         .pdpa-group { background-color: #e6ffe6; border: 1px solid #00b900; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
         .pdpa-group label { font-weight: normal; display: flex; align-items: flex-start; margin-bottom: 0; }
         .pdpa-group input[type="checkbox"] { width: auto; margin-right: 10px; margin-top: 2px; }
+        .pdpa-consent-text { margin-top: 10px; font-size: 0.85em; }
+        .pdpa-consent-text a { color: #008800; text-decoration: none; font-weight: bold; cursor: pointer; }
+        
+        /* PDPA MODAL STYLES */
+        #pdpaModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); display: none; justify-content: center;
+            align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: #fff; padding: 25px; border-radius: 10px; max-width: 90%;
+            max-height: 80%; overflow-y: auto; position: relative;
+        }
+        .modal-content h3 { color: #00b900; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        .modal-content p { font-size: 0.9em; line-height: 1.6; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer; color: #888; }
+        .close-btn:hover { color: #333; }
 
         /* BUTTON */
         button { 
@@ -53,6 +70,9 @@
         /* STATUS */
         .status { margin-top: 10px; font-size: 0.9em; text-align: center; color: #666; }
         .hidden { display: none; }
+        
+        /* HINT TEXT */
+        .hint { font-size: 0.8em; color: #cc0000; margin-top: -15px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -67,11 +87,14 @@
 
         <form id="f">
             
-            <div class="form-group pdpa-group">
+            <div class="pdpa-group form-group">
                 <label for="consent_pdpa">
                     <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
                     **ยืนยัน PDPA** (ยอมรับข้อกำหนดและเงื่อนไข)
                 </label>
+                <div class="pdpa-consent-text">
+                    <a id="showPdpaModal">อ่านเพิ่มเติมเกี่ยวกับข้อความเงื่อนไขการยินยอม</a>
+                </div>
             </div>
 
             <h2>ข้อมูลผู้ว่าจ้าง</h2>
@@ -182,8 +205,9 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="wage_amount">จำนวนค่าจ้าง</label>
-                <input id="wage_amount" name="wage_amount" placeholder="เช่น 50 บาท/ชม., 1200 บาท/3วัน, เงินเดือน 15,000 บาท" required>
+                <label for="wage_amount">จำนวนค่าจ้าง (ตัวเลขเท่านั้น)</label>
+                <input id="wage_amount" name="wage_amount" type="number" inputmode="numeric" placeholder="เช่น 50, 1200, 15000" required>
+                <div class="hint">*กรุณากรอกเฉพาะตัวเลข (เช่น 50, 1200)</div>
             </div>
             
             <div class="row">
@@ -211,8 +235,47 @@
         </form>
     </div>
 
+    <div id="pdpaModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closePdpaModal">&times;</span>
+            <h3>ข้อความเงื่อนไขการยินยอม (สำหรับแบบฟอร์มนายจ้าง)</h3>
+            
+            <p>ข้าพเจ้าขอให้ความยินยอมในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (“พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล”) ดังรายละเอียดต่อไปนี้</p>
+            
+            <h4>1. วัตถุประสงค์ของการเก็บข้อมูล</h4>
+            <ul>
+                <li>การประกาศงานและการจับคู่งานระหว่างผู้ว่าจ้างและผู้หางานภายในจังหวัดปทุมธานี</li>
+                <li>การติดต่อ แจ้งผลการประกาศงาน หรือส่งต่อข้อมูลผู้สมัครที่เหมาะสม</li>
+                <li>การตรวจสอบความถูกต้องของข้อมูลและความน่าเชื่อถือของผู้ว่าจ้าง</li>
+                <li>การพัฒนาระบบและการให้บริการของโครงการ JobLocal</li>
+            </ul>
+            
+            <h4>2. ประเภทข้อมูลส่วนบุคคลที่เก็บรวบรวม</h4>
+            <p>ข้อมูลส่วนบุคคล ได้แก่ ชื่อ-นามสกุล เบอร์โทรศัพท์ อีเมล ชื่อบริษัทหรือชื่อบุคคลผู้ว่าจ้าง ที่อยู่ สถานที่ประกอบการ ช่องทางติดต่อ และข้อมูลอื่นที่เกี่ยวข้องกับการประกาศงาน</p>
+            
+            <h4>3. การเปิดเผยข้อมูลแก่บุคคลภายนอก</h4>
+            <p>ข้อมูลของข้าพเจ้าจะถูกเปิดเผยเฉพาะกับ</p>
+            <ul>
+                <li>ผู้หางานที่ลงทะเบียนในระบบ JobLocal</li>
+                <li>หน่วยงานภาครัฐหรือพันธมิตรโครงการเพื่อวัตถุประสงค์ในการตรวจสอบความถูกต้องของข้อมูล</li>
+            </ul>
+            <p>ทั้งนี้ จะไม่เปิดเผยข้อมูลเพื่อการค้า หรือส่งต่อให้บุคคลที่สามโดยไม่ได้รับความยินยอม</p>
+            
+            <h4>4. สิทธิของเจ้าของข้อมูล</h4>
+            <p>ข้าพเจ้าทราบดีว่ามีสิทธิในการเข้าถึงข้อมูลส่วนบุคคลของตน ขอแก้ไขข้อมูลให้ถูกต้อง และสามารถถอนความยินยอมได้ทุกเมื่อ โดยติดต่อทีมงาน JobLocal Pathum Thani ผ่านช่องทาง LINE Official Account</p>
+            
+            <h4>5. ระยะเวลาการเก็บรักษาข้อมูล</h4>
+            <p>ข้อมูลจะถูกจัดเก็บไว้นานไม่เกิน 2 ปี นับจากวันที่ส่งแบบฟอร์ม หรือจนกว่าจะมีการขอถอนข้อมูล</p>
+            
+            <h4>6. การให้ความยินยอม</h4>
+            <p>ข้าพเจ้ารับทราบและเข้าใจเงื่อนไขดังกล่าว และยินยอมให้โครงการ JobLocal Pathum Thani เก็บ รวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตามวัตถุประสงค์ข้างต้น</p>
+        </div>
+    </div>
+
+
     <script>
         // --- CONFIG ---
+        // เปลี่ยนกลับเป็น ID เก่าตามคำสั่ง
         const LIFF_ID = "2008394776-k9v7m3Wg"; 
         const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbz3rL6bZf13avYEKvGaHQbh3jmaOzGHvyCD_27_bIMkPcPmgOnN1JGL6PmiYEXuMKYk/exec";
         // --- End CONFIG ---
@@ -229,12 +292,28 @@
         const jobTitleSelect = $("job_title_select");
         const jobTitleOtherGroup = $("job_title_other_group");
         const jobTitleOtherInput = $("job_title_other");
-        const companyOrgGroup = $("company_org_group");
         const companyOrgInput = $("company_or_org");
+        const pdpaModal = $("pdpaModal");
+        const showPdpaModalBtn = $("showPdpaModal");
+        const closePdpaModalBtn = $("closePdpaModal");
 
+        // --- PDPA Modal Handlers ---
+        showPdpaModalBtn.addEventListener('click', () => {
+            pdpaModal.style.display = 'flex';
+        });
+        closePdpaModalBtn.addEventListener('click', () => {
+            pdpaModal.style.display = 'none';
+        });
+        pdpaModal.addEventListener('click', (e) => {
+            if (e.target.id === 'pdpaModal') {
+                pdpaModal.style.display = 'none';
+            }
+        });
+
+        // --- Conditional Input Handlers ---
         userTypeSelect.addEventListener('change', (e) => {
-            // ซ่อนหรือแสดงช่องสำหรับชื่อบริษัท/ผู้ว่าจ้าง
-            if (e.target.value === 'อื่นๆ' || e.target.value === 'บุคคลทั่วไป / เจ้าของกิจการรายย่อย') {
+            const val = e.target.value;
+            if (val === 'อื่นๆ' || val === 'บุคคลทั่วไป / เจ้าของกิจการรายย่อย') {
                 companyOrgInput.placeholder = "ระบุชื่อบุคคล/กิจการ";
             } else {
                 companyOrgInput.placeholder = "ระบุชื่อบริษัท/องค์กร";
@@ -242,7 +321,6 @@
         });
         
         jobTitleSelect.addEventListener('change', (e) => {
-            // ซ่อนหรือแสดงช่องสำหรับระบุตำแหน่ง "อื่นๆ"
             if (e.target.value === 'อื่นๆ') {
                 jobTitleOtherGroup.classList.remove('hidden');
                 jobTitleOtherInput.required = true;
@@ -309,6 +387,9 @@
                     // ลบ field ที่ไม่ต้องการส่งไป GAS (เช่น select/input 'อื่นๆ' ที่ไม่ได้ใช้)
                     formData.delete('job_title_select');
                     formData.delete('job_title_other');
+                    // เปลี่ยนชื่อ pdpa_confirm ให้สั้นลงถ้าจำเป็น
+                    formData.set('pdpa_consent', formData.get('consent_pdpa') ? 'ยอมรับ' : 'ไม่ยอมรับ');
+                    formData.delete('consent_pdpa');
                     
                     const data = Object.fromEntries(formData.entries());
 
