@@ -7,7 +7,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     
     <style>
-        /* BASE & LAYOUT */
+        /* BASE & LAYOUT (CSS คงเดิมเพื่อความสวยงาม) */
         body { font-family: 'Sukhumvit Set', 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background-color: #f8f8f8; color: #333; }
         .container { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); padding: 20px; }
 
@@ -172,14 +172,16 @@
             </div>
 
             <div class="form-group">
-                <label for="location_area">สถานที่ทำงาน / ที่ตั้ง</label>
+                <label for="location_area">สถานที่ทำงาน / ที่ตั้ง (พิมพ์)</label>
                 <input id="location_area" name="location_area" placeholder="พิมพ์ชื่อสถานที่ หรือใช้ตำแหน่งปัจจุบัน" required>
                 
                 <button type="button" id="getLocationBtn" class="map-btn">
                     📍 ใช้ตำแหน่งปัจจุบัน
                 </button>
 
-                <div class="hint hint-success" id="locationStatus">*ถ้ากด "ใช้ตำแหน่งปัจจุบัน" ข้อมูลจะใช้ Lat/Lng แทน</div>
+                <div class="hint hint-success" id="locationStatus">
+                    *ถ้ากดปุ่ม กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือสามารถพิมพ์ชื่อสถานที่เองได้เลย
+                </div>
                 
                 <input type="hidden" name="location_lat" id="location_lat">
                 <input type="hidden" name="location_lng" id="location_lng">
@@ -211,7 +213,7 @@
                         <option value="ชั่วโมงละ">ชั่วโมงละ</option>
                         <option value="วันละ">วันละ</option>
                         <option value="เหมาจ้าง">เหมาจ้าง</option>
-                        </select>
+                    </select>
                 </div>
             </div>
             
@@ -358,7 +360,7 @@
             }
         });
 
-        // --- NEW: Wage Conditional Handler ---
+        // --- Wage Conditional Handler ---
         wageTypeSelect.addEventListener('change', (e) => {
             const isLumpSum = e.target.value === 'เหมาจ้าง';
             if (isLumpSum) {
@@ -371,8 +373,18 @@
             }
         });
 
+        // --- NEW: Clear Location on Manual Input ---
+        locationAreaInput.addEventListener('input', () => {
+            if (locationLatInput.value || locationLngInput.value) {
+                locationLatInput.value = '';
+                locationLngInput.value = '';
+                locationStatus.textContent = "*ค่าพิกัดถูกล้างแล้ว คุณสามารถพิมพ์ชื่อสถานที่เองได้";
+                locationStatus.style.color = '#f7a040'; // สีส้ม
+            }
+        });
 
-        // --- LIFF Location Handler (คงไว้) ---
+
+        // --- LIFF Location Handler (ปรับปรุงข้อความ) ---
         getLocationBtn.addEventListener('click', () => {
             if (!liff.isInClient()) {
                 locationStatus.textContent = "❌ ใช้ฟังก์ชันนี้ได้เฉพาะในแอป LINE เท่านั้น";
@@ -380,7 +392,7 @@
                 return;
             }
 
-            locationStatus.textContent = "กำลังดึงตำแหน่ง... (กรุณาอนุญาต)";
+            locationStatus.textContent = "กำลังดึงตำแหน่ง... (กรุณากด 'อนุญาต' เมื่อมี Pop-up ขึ้นมา)";
             locationStatus.style.color = '#f7a040';
             getLocationBtn.disabled = true;
 
@@ -389,17 +401,18 @@
                     locationLatInput.value = location.latitude;
                     locationLngInput.value = location.longitude;
                     
-                    locationAreaInput.value = `ตำแหน่ง (Lat: ${location.latitude.toFixed(4)}, Lng: ${location.longitude.toFixed(4)})`;
+                    // อัปเดตช่องแสดงผลให้รู้ว่ามีการปักหมุดแล้ว
+                    locationAreaInput.value = `ตำแหน่งพิกัดที่ดึงมา (Lat: ${location.latitude.toFixed(4)}, Lng: ${location.longitude.toFixed(4)})`;
                     locationAreaInput.required = true;
 
-                    locationStatus.textContent = "✅ ดึงตำแหน่งสำเร็จ! (ใช้ Lat/Lng)";
+                    locationStatus.textContent = "✅ ดึงตำแหน่งสำเร็จ! หากต้องการเปลี่ยน ให้พิมพ์ในช่องด้านบน";
                     locationStatus.style.color = '#008800';
                 } else {
                     locationStatus.textContent = "❌ ไม่สามารถดึงตำแหน่งได้ (โปรดเปิด GPS และอนุญาต)";
                     locationStatus.style.color = '#cc0000';
                 }
             }).catch(err => {
-                locationStatus.textContent = `❌ เกิดข้อผิดพลาด: ${err.message}`;
+                locationStatus.textContent = `❌ เกิดข้อผิดพลาด: ${err.message}. โปรดตรวจสอบว่าเปิด GPS และอนุญาตการเข้าถึง`;
                 locationStatus.style.color = '#cc0000';
                 console.error("Location error:", err);
             }).finally(() => {
