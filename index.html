@@ -73,6 +73,10 @@
         
         /* HINT TEXT */
         .hint { font-size: 0.8em; color: #cc0000; margin-top: -15px; margin-bottom: 15px; }
+        .hint-success { color: #008800; }
+        .map-btn {
+            margin-top: 5px; background-color: #f7a040; color: #333; font-size: 0.9em; padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -171,11 +175,11 @@
                 <label for="location_area">สถานที่ทำงาน / ที่ตั้ง</label>
                 <input id="location_area" name="location_area" placeholder="พิมพ์ชื่อสถานที่ หรือใช้ตำแหน่งปัจจุบัน" required>
                 
-                <button type="button" id="getLocationBtn" style="margin-top: 5px; background-color: #f7a040; color: #333; font-size: 0.9em; padding: 10px;">
+                <button type="button" id="getLocationBtn" class="map-btn">
                     📍 ใช้ตำแหน่งปัจจุบัน
                 </button>
 
-                <div class="hint" id="locationStatus" style="color: #008800; margin-top: 5px; margin-bottom: 0;">*ถ้ากด "ใช้ตำแหน่งปัจจุบัน" ข้อมูลจะใช้ Lat/Lng แทน</div>
+                <div class="hint hint-success" id="locationStatus">*ถ้ากด "ใช้ตำแหน่งปัจจุบัน" ข้อมูลจะใช้ Lat/Lng แทน</div>
                 
                 <input type="hidden" name="location_lat" id="location_lat">
                 <input type="hidden" name="location_lng" id="location_lng">
@@ -207,10 +211,15 @@
                         <option value="ชั่วโมงละ">ชั่วโมงละ</option>
                         <option value="วันละ">วันละ</option>
                         <option value="เหมาจ้าง">เหมาจ้าง</option>
-                        <option value="อื่นๆ">อื่นๆ (ระบุ)</option>
-                    </select>
+                        </select>
                 </div>
             </div>
+            
+            <div class="form-group hidden" id="lump_sum_days_group">
+                <label for="lump_sum_days">เหมาจ้างเป็นจำนวนกี่วัน?</label>
+                <input id="lump_sum_days" name="lump_sum_days" type="number" min="1" placeholder="ใส่จำนวนวัน เช่น 3" required>
+            </div>
+            
             <div class="form-group">
                 <label for="wage_amount">จำนวนค่าจ้าง (ตัวเลขเท่านั้น)</label>
                 <input id="wage_amount" name="wage_amount" type="number" inputmode="numeric" placeholder="เช่น 50, 1200, 15000" required>
@@ -309,6 +318,11 @@
         const locationLatInput = $("location_lat");
         const locationLngInput = $("location_lng");
         const locationStatus = $("locationStatus");
+        
+        // --- Wage Elements ---
+        const wageTypeSelect = $("wage_type");
+        const lumpSumDaysGroup = $("lump_sum_days_group");
+        const lumpSumDaysInput = $("lump_sum_days");
 
 
         // --- PDPA Modal Handlers ---
@@ -344,7 +358,21 @@
             }
         });
 
-        // --- LIFF Location Handler ---
+        // --- NEW: Wage Conditional Handler ---
+        wageTypeSelect.addEventListener('change', (e) => {
+            const isLumpSum = e.target.value === 'เหมาจ้าง';
+            if (isLumpSum) {
+                lumpSumDaysGroup.classList.remove('hidden');
+                lumpSumDaysInput.required = true;
+            } else {
+                lumpSumDaysGroup.classList.add('hidden');
+                lumpSumDaysInput.required = false;
+                lumpSumDaysInput.value = ''; // Clear value when hidden
+            }
+        });
+
+
+        // --- LIFF Location Handler (คงไว้) ---
         getLocationBtn.addEventListener('click', () => {
             if (!liff.isInClient()) {
                 locationStatus.textContent = "❌ ใช้ฟังก์ชันนี้ได้เฉพาะในแอป LINE เท่านั้น";
@@ -352,7 +380,6 @@
                 return;
             }
 
-            // ถ้า Location API ถูกเรียกใช้
             locationStatus.textContent = "กำลังดึงตำแหน่ง... (กรุณาอนุญาต)";
             locationStatus.style.color = '#f7a040';
             getLocationBtn.disabled = true;
@@ -362,7 +389,6 @@
                     locationLatInput.value = location.latitude;
                     locationLngInput.value = location.longitude;
                     
-                    // อัปเดตช่องแสดงผลให้รู้ว่ามีการปักหมุดแล้ว
                     locationAreaInput.value = `ตำแหน่ง (Lat: ${location.latitude.toFixed(4)}, Lng: ${location.longitude.toFixed(4)})`;
                     locationAreaInput.required = true;
 
@@ -423,7 +449,7 @@
                         return; 
                     }
                     
-                    // รวบรวมตำแหน่งงานจริง (จาก select หรือ input 'อื่นๆ')
+                    // รวบรวมตำแหน่งงานจริง
                     const selectedJobTitle = jobTitleSelect.value;
                     if (selectedJobTitle === 'อื่นๆ') {
                         $("job_title_final").value = jobTitleOtherInput.value;
@@ -435,9 +461,15 @@
                     status.textContent = "กำลังส่งข้อมูล…";
 
                     const formData = new FormData(form);
-                    // ลบ field ที่ไม่ต้องการส่งไป GAS (เช่น select/input 'อื่นๆ' ที่ไม่ได้ใช้)
+                    // ลบ field ที่ไม่ต้องการส่งไป GAS (select/input 'อื่นๆ' ที่ไม่ได้ใช้)
                     formData.delete('job_title_select');
                     formData.delete('job_title_other');
+                    
+                    // ลบค่า lump_sum_days ถ้าไม่ได้เลือก 'เหมาจ้าง'
+                    if (wageTypeSelect.value !== 'เหมาจ้าง') {
+                        formData.delete('lump_sum_days');
+                    }
+                    
                     // เปลี่ยนชื่อ pdpa_confirm
                     formData.set('pdpa_consent', formData.get('consent_pdpa') ? 'ยอมรับ' : 'ไม่ยอมรับ');
                     formData.delete('consent_pdpa');
