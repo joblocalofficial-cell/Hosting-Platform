@@ -73,10 +73,6 @@
         
         /* HINT TEXT */
         .hint { font-size: 0.8em; color: #cc0000; margin-top: -15px; margin-bottom: 15px; }
-        .hint-success { color: #008800; }
-        .map-btn {
-            margin-top: 5px; background-color: #f7a040; color: #333; font-size: 0.9em; padding: 10px;
-        }
     </style>
 </head>
 <body>
@@ -173,18 +169,7 @@
 
             <div class="form-group">
                 <label for="location_area">สถานที่ทำงาน / ที่ตั้ง (พิมพ์)</label>
-                <input id="location_area" name="location_area" placeholder="พิมพ์ชื่อสถานที่ หรือใช้ตำแหน่งปัจจุบัน" required>
-                
-                <button type="button" id="getLocationBtn" class="map-btn">
-                    📍 ใช้ตำแหน่งปัจจุบัน
-                </button>
-
-                <div class="hint hint-success" id="locationStatus">
-                    *ถ้ากดปุ่ม กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือสามารถพิมพ์ชื่อสถานที่เองได้เลย
-                </div>
-                
-                <input type="hidden" name="location_lat" id="location_lat">
-                <input type="hidden" name="location_lng" id="location_lng">
+                <input id="location_area" name="location_area" placeholder="พิมพ์ชื่อสถานที่ทำงาน เช่น ร้านอาหาร A สาขาคลองหลวง" required>
             </div>
 
             <div class="form-group">
@@ -314,13 +299,6 @@
         const showPdpaModalBtn = $("showPdpaModal");
         const closePdpaModalBtn = $("closePdpaModal");
         
-        // --- Location Elements ---
-        const getLocationBtn = $("getLocationBtn");
-        const locationAreaInput = $("location_area");
-        const locationLatInput = $("location_lat");
-        const locationLngInput = $("location_lng");
-        const locationStatus = $("locationStatus");
-        
         // --- Wage Elements ---
         const wageTypeSelect = $("wage_type");
         const lumpSumDaysGroup = $("lump_sum_days_group");
@@ -372,54 +350,7 @@
                 lumpSumDaysInput.value = ''; // Clear value when hidden
             }
         });
-
-        // --- NEW: Clear Location on Manual Input ---
-        locationAreaInput.addEventListener('input', () => {
-            if (locationLatInput.value || locationLngInput.value) {
-                locationLatInput.value = '';
-                locationLngInput.value = '';
-                locationStatus.textContent = "*ค่าพิกัดถูกล้างแล้ว คุณสามารถพิมพ์ชื่อสถานที่เองได้";
-                locationStatus.style.color = '#f7a040'; // สีส้ม
-            }
-        });
-
-
-        // --- LIFF Location Handler (ปรับปรุงข้อความ) ---
-        getLocationBtn.addEventListener('click', () => {
-            if (!liff.isInClient()) {
-                locationStatus.textContent = "❌ ใช้ฟังก์ชันนี้ได้เฉพาะในแอป LINE เท่านั้น";
-                locationStatus.style.color = '#cc0000';
-                return;
-            }
-
-            locationStatus.textContent = "กำลังดึงตำแหน่ง... (กรุณากด 'อนุญาต' เมื่อมี Pop-up ขึ้นมา)";
-            locationStatus.style.color = '#f7a040';
-            getLocationBtn.disabled = true;
-
-            liff.getLocation().then(location => {
-                if (location) {
-                    locationLatInput.value = location.latitude;
-                    locationLngInput.value = location.longitude;
-                    
-                    // อัปเดตช่องแสดงผลให้รู้ว่ามีการปักหมุดแล้ว
-                    locationAreaInput.value = `ตำแหน่งพิกัดที่ดึงมา (Lat: ${location.latitude.toFixed(4)}, Lng: ${location.longitude.toFixed(4)})`;
-                    locationAreaInput.required = true;
-
-                    locationStatus.textContent = "✅ ดึงตำแหน่งสำเร็จ! หากต้องการเปลี่ยน ให้พิมพ์ในช่องด้านบน";
-                    locationStatus.style.color = '#008800';
-                } else {
-                    locationStatus.textContent = "❌ ไม่สามารถดึงตำแหน่งได้ (โปรดเปิด GPS และอนุญาต)";
-                    locationStatus.style.color = '#cc0000';
-                }
-            }).catch(err => {
-                locationStatus.textContent = `❌ เกิดข้อผิดพลาด: ${err.message}. โปรดตรวจสอบว่าเปิด GPS และอนุญาตการเข้าถึง`;
-                locationStatus.style.color = '#cc0000';
-                console.error("Location error:", err);
-            }).finally(() => {
-                getLocationBtn.disabled = false;
-            });
-        });
-
+        
         // --- LIFF & Form Submission Logic ---
         (async () => {
             try {
@@ -474,7 +405,7 @@
                     status.textContent = "กำลังส่งข้อมูล…";
 
                     const formData = new FormData(form);
-                    // ลบ field ที่ไม่ต้องการส่งไป GAS (select/input 'อื่นๆ' ที่ไม่ได้ใช้)
+                    // ลบ field ที่ไม่ต้องการส่งไป GAS 
                     formData.delete('job_title_select');
                     formData.delete('job_title_other');
                     
