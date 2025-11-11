@@ -1,295 +1,204 @@
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>การประกาศหางาน - JobLocal</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/sdk/2.2.0/liff.js"></script>
-    <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header { display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        .header img { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
-        .profile h3 { margin: 0; color: #333; }
-        .profile p { margin: 2px 0 0; color: #777; font-size: 0.9em; }
-        h2 { color: #00b900; border-bottom: 2px solid #00b900; padding-bottom: 5px; margin-bottom: 20px; font-size: 1.5em; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .input-full, select, textarea { width: calc(100% - 10px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
-        .input-half { width: calc(50% - 10px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
-        .row { display: flex; justify-content: space-between; }
-        .row > div { flex: 1; margin-right: 10px; }
-        .row > div:last-child { margin-right: 0; }
-        .pdpa-consent { background-color: #e6ffe6; padding: 10px; border-radius: 4px; border: 1px solid #00b900; }
-        .pdpa-consent label { font-weight: normal; color: #333; display: flex; align-items: flex-start; }
-        .pdpa-consent input { margin-top: 5px; margin-right: 8px; }
-        button { background-color: #00b900; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; transition: background-color 0.3s; }
-        button:hover:enabled { background-color: #008800; }
-        button:disabled { background-color: #b3e6b3; cursor: not-allowed; }
-        .loading { text-align: center; color: #888; padding: 50px; }
-        .error { color: red; text-align: center; margin-top: 15px; }
-    </style>
+<!doctype html>
+<html lang="th">
+<head> 
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ประกาศ – JobLocal</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:560px;margin:auto;padding:18px}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    img{width:56px;height:56px;border-radius:50%;background:#eee}
+    label{display:block;margin:10px 0 6px}
+    input,select,button,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px}
+    button{margin-top:14px}
+    small{color:#666}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .status{margin-top:10px;font-size:14px}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img id="avatar" src="" alt="Avatar">
-            <div class="profile">
-                <h3 id="hello">กำลังโหลดบัญชี LINE...</h3>
-                <p id="uid"></p>
-            </div>
-        </div>
+  <header>
+    <img id="avatar" alt="">
+    <div>
+      <div id="hello">กำลังเชื่อมต่อ LINE...</div>
+      <small id="uid">userId: -</small>
+    </div>
+  </header>
 
-        <form id="jobForm">
-            <h2>ข้อมูลประกาศงาน</h2>
-            
-            <div class="form-group pdpa-consent">
-                <label for="pdpa_confirm">
-                    <input type="checkbox" id="pdpa_confirm" name="pdpa_confirm" required>
-                    **ยืนยัน PDPA** (ยอมรับข้อกำหนดและเงื่อนไข)
-                </label>
-            </div>
+  <form id="f">
+    <label>บริษัท / องค์กร (หรือชื่อผู้ว่าจ้าง)</label>
+    <input name="company_or_org" required>
 
-            <div class="form-group">
-                <label>คุณเป็นใคร/องค์กรประเภทใด?</label>
-                <select id="user_type" name="user_type" required>
-                    <option value="" disabled selected>--- เลือกประเภท ---</option>
-                    <option value="บริษัท / องค์กร">บริษัท / องค์กร</option>
-                    <option value="บุคคลทั่วไป / เจ้าของกิจการรายย่อย">บุคคลทั่วไป / เจ้าของกิจการรายย่อย</option>
-                    <option value="อื่นๆ">อื่นๆ (ระบุในช่องด้านล่าง)</option>
-                </select>
-            </div>
-            <div class="form-group" id="other_type_group" style="display:none;">
-                <label for="company_name">ชื่อบริษัท / ชื่อบุคคลผู้ว่าจ้าง</label>
-                <input type="text" id="company_name" name="company_name" class="input-full" placeholder="ระบุชื่อบริษัท / ชื่อบุคคล" required>
-            </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="contact_name">ชื่อผู้ติดต่อ</label>
-                    <input type="text" id="contact_name" name="contact_name" class="input-full" placeholder="ชื่อ-นามสกุลผู้ประสานงาน" required>
-                </div>
-                <div class="form-group">
-                    <label for="contact_tel">เบอร์โทรศัพท์ติดต่อ (10 หลัก)</label>
-                    <input type="tel" id="contact_tel" name="contact_tel" class="input-full" pattern="[0-9]{10}" placeholder="08x-xxxxxxx" required>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label for="job_title">ตำแหน่งงานที่ต้องการจ้าง</label>
-                    <select id="job_title" name="job_title" required>
-                        <option value="" disabled selected>--- เลือกตำแหน่ง ---</option>
-                        <option value="พนักงานเสิร์ฟ">พนักงานเสิร์ฟ</option>
-                        <option value="พนักงานขาย">พนักงานขาย</option>
-                        <option value="ช่างซ่อม">ช่างซ่อม</option>
-                        <option value="แม่บ้าน">แม่บ้าน</option>
-                        <option value="อื่นๆ">อื่นๆ (ระบุในช่องด้านล่าง)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="job_category">หมวดงาน</label>
-                    <select id="job_category" name="job_category" required>
-                        <option value="" disabled selected>--- เลือกหมวดงาน ---</option>
-                        <option value="งานบริการ (Service)">งานบริการ (Service)</option>
-                        <option value="งานขาย (Sales)">งานขาย (Sales)</option>
-                        <option value="งานแม่บ้าน / ทำความสะอาด (Housekeeping)">งานแม่บ้าน / ทำความสะอาด (Housekeeping)</option>
-                        <option value="งานช่าง / ซ่อมบำรุง (Technician)">งานช่าง / ซ่อมบำรุง (Technician)</option>
-                        <option value="งานขับรถ / ส่งของ (Driver)">งานขับรถ / ส่งของ (Driver)</option>
-                        <option value="งานครัว / ทำอาหาร (Kitchen)">งานครัว / ทำอาหาร (Kitchen)</option>
-                        <option value="งานร้านกาแฟ / ร้านอาหาร (Café & Restaurant)">งานร้านกาแฟ / ร้านอาหาร (Café & Restaurant)</option>
-                        <option value="งานทั่วไป / รายวัน (General Labor)">งานทั่วไป / รายวัน (General Labor)</option>
-                        <option value="งานออฟฟิศ / ธุรการ (Office / Admin)">งานออฟฟิศ / ธุรการ (Office / Admin)</option>
-                        <option value="อื่นๆ">อื่นๆ</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="job_details">รายละเอียดงาน / คุณสมบัติ</label>
-                <textarea id="job_details" name="job_details" rows="4" class="input-full" placeholder="อธิบายหน้าที่/คุณสมบัติโดยละเอียด"></textarea>
-            </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="job_location">สถานที่ทำงาน / ที่ตั้ง (พิมพ์)</label>
-                    <input type="text" id="job_location" name="job_location" class="input-full" placeholder="เช่น เมืองปทุมธานี/ธรรมศาสตร์/สามโคก">
-                    </div>
-                <div class="form-group">
-                    <label for="job_district">อำเภอ/เขต (ในปทุมธานี)</label>
-                    <select id="job_district" name="job_district" required>
-                        <option value="" disabled selected>--- เลือกอำเภอ ---</option>
-                        <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
-                        <option value="คลองหลวง">คลองหลวง</option>
-                        <option value="ธัญบุรี">ธัญบุรี</option>
-                        <option value="หนองเสือ">หนองเสือ</option>
-                        <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
-                        <option value="ลำลูกกา">ลำลูกกา</option>
-                        <option value="สามโคก">สามโคก</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label for="num_required">จำนวนคนที่ต้องการ</label>
-                    <input type="number" id="num_required" name="num_required" class="input-full" min="1" value="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="payment_type">ค่าจ้าง / รูปแบบการจ่าย</label>
-                    <select id="payment_type" name="payment_type" required>
-                        <option value="" disabled selected>--- เลือกรุ่นแบบค่าจ้าง ---</option>
-                        <option value="ชั่วโมงละ">ชั่วโมงละ</option>
-                        <option value="วันละ">วันละ</option>
-                        <option value="เหมาจ้าง">เหมาจ้าง (ระบุจำนวนและราคา)</option>
-                        <option value="อื่นๆ">อื่นๆ</option>
-                    </select>
-                    <input type="text" id="payment_amount" name="payment_amount" class="input-full" placeholder="ใส่จำนวนเงินและรูปแบบ เช่น 50 บาท/ชม., 1200 บาท/3วัน" required style="margin-top: 5px;">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="start_date">วันที่เริ่มงาน (ถ้ามี)</label>
-                    <input type="date" id="start_date" name="start_date" class="input-full">
-                </div>
-                <div class="form-group">
-                    <label for="start_time">เวลาเริ่มงาน</label>
-                    <input type="time" id="start_time" name="start_time" class="input-full">
-                </div>
-            </div>
-            
-            <input type="hidden" id="line_user_id" name="line_user_id">
-            <input type="hidden" id="line_display_name" name="line_display_name">
-
-            <button type="submit" id="submitBtn" disabled>กำลังโหลด...</button>
-        </form>
+    <div class="row">
+      <div>
+        <label>ชื่อติดต่อ</label>
+        <input name="contact_person" required>
+      </div>
+      <div>
+        <label>โทรศัพท์ติดต่อ</label>
+        <input name="contact_phone" type="tel" inputmode="tel" required>
+      </div>
     </div>
 
-    <script>
-        // --- CONFIG ---
-    const LIFF_ID = "2008394776-pAZ1rEad"; 
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbz3rL6bZf13avYEKvGaHQbh3jmaOzGHvyCD_27_bIMkPcPmgOnN1JGL6PmiYEXuMKYk/exec";
-        // --- End CONFIG ---
+    <div class="row">
+      <div>
+        <label>ชื่อตำแหน่ง</label>
+        <input name="job_title" required>
+      </div>
+      <div>
+        <label>หมวดงาน</label>
+        <input name="job_category" placeholder="เช่น งานขาย (Sales)">
+      </div>
+    </div>
 
-        const $ = id => document.getElementById(id);
-        const hello = $("hello");
-        const uid = $("uid");
-        const submitBtn = $("submitBtn");
-        const avatar = $("avatar");
-        const form = $("jobForm");
-        const otherTypeGroup = $("other_type_group");
-        const userTypeSelect = $("user_type");
-        const companyNameInput = $("company_name");
-        const lineUserIdInput = $("line_user_id");
-        const lineDisplayNameInput = $("line_display_name");
+    <label>รายละเอียดงาน</label>
+    <textarea name="job_description" rows="3" placeholder="อธิบายหน้าที่/คุณสมบัติ"></textarea>
 
-        let idToken = null;
-        let userProfile = null;
+    <div class="row">
+      <div>
+        <label>สถานที่ทำงาน / ที่ตั้ง</label>
+        <input name="location_area" placeholder="เช่น เมืองปทุมธานี / ธรรมศาสตร์ / สามโคก">
+      </div>
+      <div>
+        <label>อำเภอ/เขต (ปทุมธานี)</label>
+        <input name="district" placeholder="เช่น เมืองปทุมธานี">
+      </div>
+    </div>
 
-        // --- UI Logic ---
-        userTypeSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'อื่นๆ') {
-                otherTypeGroup.style.display = 'block';
-                companyNameInput.required = true;
-            } else {
-                otherTypeGroup.style.display = 'none';
-                companyNameInput.required = false;
-            }
-        });
+    <div class="row">
+      <div>
+        <label>จำนวนที่รับ</label>
+        <input name="headcount" type="number" min="1" value="1">
+      </div>
+      <div>
+        <label>ค่าจ้าง / รูปแบบการจ่าย</label>
+        <input name="wage" placeholder="เช่น ชั่วโมงละ 50 บาท / วันละ 500 บาท">
+      </div>
+    </div>
 
-        // --- LIFF & Form Submission Logic ---
-        liff.init({ liffId: LIFF_ID })
-            .then(() => {
-                submitBtn.textContent = "ตรวจสอบสถานะล็อกอิน...";
+    <div class="row">
+      <div>
+        <label>วันที่เริ่มงาน (ถ้ามี)</label>
+        <input name="start_date" type="date">
+      </div>
+      <div>
+        <label>เวลาเริ่มงาน</label>
+        <input name="start_time" type="time">
+      </div>
+    </div>
 
-                if (!liff.isLoggedIn()) {
-                    hello.textContent = "กรุณาล็อกอิน LINE";
-                    liff.login(); 
-                    return;
-                }
+    <label>ความเร่งด่วน</label>
+    <select name="urgency">
+      <option value="">-</option>
+      <option>เริ่มได้ทันที</option>
+      <option>ภายใน 7 วัน</option>
+      <option>ภายใน 14 วัน</option>
+      <option>ภายใน 1 เดือน</option>
+    </select>
 
-                return liff.getProfile();
-            })
-            .then(p => {
-                if (!p) return; // ออกถ้าไม่มี Profile (กรณี login แต่ getProfile ไม่ได้)
+    <div class="row">
+      <div>
+        <label>LINE ID ผู้ติดต่อ</label>
+        <input name="contact_line_id" placeholder="ถ้ามี">
+      </div>
+      <div>
+        <label>ยืนยัน PDPA</label>
+        <select name="consent_pdpa" required>
+          <option value="">-</option>
+          <option selected>ยอมรับและยินยอม</option>
+        </select>
+      </div>
+    </div>
 
-                userProfile = p;
-                idToken = liff.getIDToken();
+    <button id="submitBtn" type="submit" disabled>กำลังเชื่อมต่อ LINE…</button>
+    <div id="status" class="status"></div>
+  </form>
 
-                // 1. แสดงข้อมูลโปรไฟล์ที่ดึงมาสำเร็จ
-                avatar.src = p.pictureUrl || '';
-                hello.textContent = `สวัสดี ${p.displayName}`;
-                uid.textContent   = `userId: ${p.userId}`;
-                
-                // 2. เติมข้อมูลที่ซ่อนไว้สำหรับ Backend
-                lineUserIdInput.value = p.userId;
-                lineDisplayNameInput.value = p.displayName;
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+  const LIFF_ID = "2008394776-k9v7m3Wg"; 
+  const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbz3rL6bZf13avYEKvGaHQbh3jmaOzGHvyCD_27_bIMkPcPmgOnN1JGL6PmiYEXuMKYk/exec";
 
-                // 3. เปิดใช้งานปุ่ม
-                submitBtn.textContent = "ส่งประกาศงาน";
-                submitBtn.disabled = false;
-            })
-            .catch((err) => {
-                hello.textContent = "❌ เกิดข้อผิดพลาดในการโหลด";
-                uid.textContent = `Error: ${err.code || err.message}`;
-                console.error("LIFF Error:", err);
-            });
+  const $ = id => document.getElementById(id);
 
-        // --- Form Submission Handler ---
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.textContent = "กำลังส่งข้อมูล...";
+  // ตัวแปรสำหรับเก็บข้อมูลโปรไฟล์ผู้ใช้
+  let userProfile = {};
+  let userIdToken = '';
 
-            if (!idToken) {
-                alert('ไม่พบข้อมูลการล็อกอิน กรุณาลองเปิดใหม่');
-                liff.login();
-                return;
-            }
+  (async () => {
+    try {
+      await liff.init({ liffId: LIFF_ID });
 
-            // สร้าง Object ข้อมูลฟอร์ม
-            const formData = new FormData(form);
-            const data = {};
-            for (const [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-            
-            // เตรียม Payload สำหรับ Backend (GAS)
-            const payload = {
-                idToken: idToken,
-                profile: userProfile,
-                data: data // ข้อมูลฟอร์มที่ผู้ใช้กรอก
-            };
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+      
+      userIdToken = liff.getIDToken();
 
-            try {
-                const response = await fetch(GAS_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
+      // **จุดที่แก้ไข: ใช้ .then() แทน await และเพิ่มการจัดการข้อผิดพลาด**
+      liff.getProfile().then(p => {
+          userProfile = p; // เก็บข้อมูลโปรไฟล์ไว้ในตัวแปรภายนอก
+          $("avatar").src = p.pictureUrl || '';
+          $("hello").textContent = `สวัสดี ${p.displayName}`;
+          $("uid").textContent   = `userId: ${p.userId}`;
+          $("submitBtn").textContent = "ส่งประกาศงาน";
+          $("submitBtn").disabled = false;
+      }).catch(err => {
+          // ถ้าดึงโปรไฟล์ไม่ได้ จะแสดงข้อความแจ้งเตือนทันที
+          $("hello").textContent = "❌ ดึงโปรไฟล์ไม่ได้! (ตรวจ Scope: profile)";
+          $("uid").textContent = "Error: " + err.message;
+          $("submitBtn").textContent = "ไม่สามารถส่งข้อมูลได้";
+          console.error("Error getting profile:", err);
+      });
+      // **สิ้นสุดจุดที่แก้ไข**
 
-                const result = await response.json();
+      const form = $("f"), btn = $("submitBtn"), status = $("status");
+      
+      // อัปเดตข้อความปุ่มในกรณีที่ยังดึงโปรไฟล์ไม่เสร็จ (ก่อน .then)
+      if (userProfile.userId) { // ถ้าโปรไฟล์ดึงได้เร็ว
+          btn.textContent = "ส่งประกาศงาน";
+      } else { // ถ้าโปรไฟล์กำลังโหลด
+          btn.textContent = "กำลังโหลดโปรไฟล์...";
+          // ปุ่มจะถูกเปิดเมื่อ .then ทำงานสำเร็จ
+      }
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-                if (result.ok) {
-                    alert('✅ ส่งประกาศงานสำเร็จแล้ว! ขอบคุณค่ะ');
-                    // ปิดหน้า LIFF หลังจากส่งสำเร็จ
-                    if (liff.isInClient()) {
-                        liff.closeWindow();
-                    }
-                } else {
-                    alert('❌ เกิดข้อผิดพลาดในการบันทึก: ' + result.error);
-                }
+        if (!userIdToken) { status.textContent = "ไม่พบ ID Token (ตรวจ scope: openid)"; return; }
+        if (!userProfile.userId) { status.textContent = "ไม่พบข้อมูลโปรไฟล์ (รอโหลด/ตรวจ scope: profile)"; return; }
+        
+        btn.disabled = true;
+        status.textContent = "กำลังส่งข้อมูล…";
 
-            } catch (error) {
-                alert('❌ เครือข่ายผิดพลาด หรือ Backend มีปัญหา: ' + error.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "ส่งประกาศงาน";
-            }
-        });
-    </script>
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const res = await fetch(GAS_ENDPOINT, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ idToken: userIdToken, profile: userProfile, data }) // ใช้ตัวแปรที่เก็บค่าไว้
+          });
+          const json = await res.json();
+          if (json.ok) {
+            status.textContent = "✅ ส่งสำเร็จ!";
+            setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 700);
+          } else {
+            status.textContent = "❌ ส่งไม่สำเร็จ: " + (json.error || "unknown");
+            btn.disabled = false;
+          }
+        } catch (err) {
+          status.textContent = "❌ เครือข่ายผิดพลาด";
+          btn.disabled = false;
+        }
+      });
+
+    } catch (e) {
+      console.error(e);
+      $("hello").textContent = "ไม่สามารถโหลด LIFF ได้";
+      $("uid").textContent   = "";
+      $("submitBtn").disabled = true;
+      $("submitBtn").textContent = "LIFF Error";
+    }
+  })();
+  </script>
 </body>
 </html>
