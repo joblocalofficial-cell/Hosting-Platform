@@ -380,67 +380,88 @@
                     console.error("Error getting profile:", err);
                 });
 
-                // 2. จัดการการส่งฟอร์ม
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
+              
 
-                    const btn = $("submitBtn");
-                    const status = $("status");
-                    
-                    if (!userIdToken || !userProfile.userId) { 
-                        status.textContent = "❌ ข้อมูล LINE ไม่สมบูรณ์ กรุณารอหรือลองใหม่"; 
-                        liff.login();
-                        return; 
-                    }
-                    
-                    // รวบรวมตำแหน่งงานจริง
-                    const selectedJobTitle = jobTitleSelect.value;
-                    if (selectedJobTitle === 'อื่นๆ') {
-                        $("job_title_final").value = jobTitleOtherInput.value;
-                    } else {
-                        $("job_title_final").value = selectedJobTitle;
-                    }
+// 2. จัดการการส่งฟอร์ม
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-                    btn.disabled = true;
-                    status.textContent = "กำลังส่งข้อมูล…";
+    const btn = $("submitBtn");
+    const status = $("status");
+    
+    if (!userIdToken || !userProfile.userId) { 
+        status.textContent = "❌ ข้อมูล LINE ไม่สมบูรณ์ กรุณารอหรือลองใหม่"; 
+        liff.login();
+        return; 
+    }
+    
+    // รวบรวมตำแหน่งงานจริง
+    const selectedJobTitle = jobTitleSelect.value;
+    if (selectedJobTitle === 'อื่นๆ') {
+        $("job_title_final").value = jobTitleOtherInput.value;
+    } else {
+        $("job_title_final").value = selectedJobTitle;
+    }
 
-                    const formData = new FormData(form);
-                    // ลบ field ที่ไม่ต้องการส่งไป GAS 
-                    formData.delete('job_title_select');
-                    formData.delete('job_title_other');
-                    
-                    // ลบค่า lump_sum_days ถ้าไม่ได้เลือก 'เหมาจ้าง'
-                    if (wageTypeSelect.value !== 'เหมาจ้าง') {
-                        formData.delete('lump_sum_days');
-                    }
-                    
-                    // เปลี่ยนชื่อ pdpa_confirm
-                    formData.set('pdpa_consent', formData.get('consent_pdpa') ? 'ยอมรับ' : 'ไม่ยอมรับ');
-                    formData.delete('consent_pdpa');
-                    
-                    const data = Object.fromEntries(formData.entries());
+    btn.disabled = true;
+    status.textContent = "กำลังส่งข้อมูล…";
 
-                    try {
-                        const res = await fetch(GAS_ENDPOINT, {
-                            method: "POST",
-                            headers: {"Content-Type":"application/json"},
-                            // ส่งข้อมูล LIFF Profile, ID Token, และ Form Data
-                            body: JSON.stringify({ idToken: userIdToken, profile: userProfile, data }) 
-                        });
-                        
-                        const json = await res.json();
-                        if (json.ok) {
-                            status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
-                            setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 1500);
-                        } else {
-                            status.textContent = "❌ ส่งไม่สำเร็จ: " + (json.error || "unknown");
-                            btn.disabled = false;
-                        }
-                    } catch (err) {
-                        status.textContent = "❌ เครือข่ายผิดพลาด";
-                        btn.disabled = false;
-                    }
-                });
+    const formData = new FormData(form);
+    // ลบ field ที่ไม่ต้องการส่งไป GAS 
+    formData.delete('job_title_select');
+    formData.delete('job_title_other');
+    
+    // ลบค่า lump_sum_days ถ้าไม่ได้เลือก 'เหมาจ้าง'
+    if (wageTypeSelect.value !== 'เหมาจ้าง') {
+        formData.delete('lump_sum_days');
+    }
+    
+    // เปลี่ยนชื่อ pdpa_confirm
+    formData.set('pdpa_consent', formData.get('consent_pdpa') ? 'ยอมรับ' : 'ไม่ยอมรับ');
+    formData.delete('consent_pdpa');
+    
+    const data = Object.fromEntries(formData.entries());
+
+    // ***** เริ่มส่วนที่ปรับปรุง: เพิ่มการตรวจสอบ HTTP Status *****
+    try {
+        const res = await fetch(GAS_ENDPOINT, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            // ส่งข้อมูล LIFF Profile, ID Token, และ Form Data
+            body: JSON.stringify({ idToken: userIdToken, profile: userProfile, data }) 
+        });
+        
+        // **ตรวจสอบ HTTP Status (เช่น 404, 500, 302, ฯลฯ)**
+        if (!res.ok) {
+            const errorText = await res.text();
+            // พิมพ์ Error ใน Console เพื่อการ Debug
+            console.error("HTTP Error Status:", res.status, errorText); 
+            // แสดง Error บนหน้าจอ
+            status.textContent = `❌ ส่งไม่สำเร็จ: Server Error (${res.status})`; 
+            btn.disabled = false;
+            return;
+        }
+
+        // ถ้าสถานะ OK (200) ให้ลองอ่าน JSON
+        const json = await res.json();
+        
+        if (json.ok) {
+            status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
+            setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 1500);
+        } else {
+            // Error จากโค้ด GAS (เช่น Sheet not found หรือ Processing error)
+            status.textContent = "❌ ส่งไม่สำเร็จ: " + (json.error || "unknown");
+            btn.disabled = false;
+        }
+    } catch (err) {
+        // ดักจับ Network Error (เช่น ไม่มีเน็ต/Timeout) หรือ JSON Parsing Error
+        console.error("Fetch/Processing Error:", err);
+        status.textContent = "❌ เครือข่ายผิดพลาด";
+        btn.disabled = false;
+    }
+    // ***** สิ้นสุดส่วนที่ปรับปรุง *****
+
+});
 
             } catch (e) {
                 console.error(e);
