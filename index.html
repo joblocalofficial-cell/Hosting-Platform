@@ -1,313 +1,10 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>/JobLocal - แบบฟอร์มประกาศงาน</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> 
-    
-    <style>
-        /* BASE & LAYOUT */
-        body { font-family: 'Sukhumvit Set', 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background-color: #f8f8f8; color: #333; }
-        .container { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); padding: 20px; }
-
-        /* HEADER & PROFILE */
-        header { display: flex; gap: 15px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        #avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: #eee; }
-        #hello { font-size: 1.1em; font-weight: bold; margin-bottom: 2px; color: #00b900; }
-        #uid { font-size: 0.8em; color: #888; }
-        
-        /* FORM STYLES */
-        h2 { font-size: 1.5em; color: #333; margin-top: 25px; margin-bottom: 15px; border-left: 5px solid #00b900; padding-left: 10px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 0.95em; }
-        
-        /* INPUTS */
-        input, select, textarea { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
-            box-sizing: border-box; font-size: 1em; transition: border-color 0.3s;
-            background-color: #fff;
-        }
-        input:focus, select:focus, textarea:focus { border-color: #00b900; outline: none; box-shadow: 0 0 0 3px rgba(0, 185, 0, 0.1); }
-        
-        /* GRID LAYOUT */
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        @media (max-width: 400px) {
-            .row { grid-template-columns: 1fr; }
-        }
-
-        /* CHECKBOX/PDPA CONSENT */
-        .pdpa-group { background-color: #e6ffe6; border: 1px solid #00b900; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
-        .pdpa-group label { font-weight: normal; display: flex; align-items: flex-start; margin-bottom: 0; }
-        .pdpa-group input[type="checkbox"] { width: auto; margin-right: 10px; margin-top: 2px; }
-        .pdpa-consent-text { margin-top: 10px; font-size: 0.85em; }
-        .pdpa-consent-text a { color: #008800; text-decoration: none; font-weight: bold; cursor: pointer; }
-        
-        /* BUTTON */
-        button { 
-            background-color: #00b900; color: white; padding: 14px 20px; 
-            border: none; border-radius: 8px; cursor: pointer; width: 100%; 
-            font-size: 1.1em; font-weight: bold; transition: background-color 0.3s;
-        }
-        button:hover:enabled { background-color: #008800; }
-        button:disabled { background-color: #b3e6b3; cursor: not-allowed; }
-        
-        /* STATUS */
-        .status { margin-top: 10px; font-size: 0.9em; text-align: center; color: #666; }
-        .hidden { display: none !important; }
-        
-        /* HINT TEXT */
-        .hint { font-size: 0.8em; color: #cc0000; margin-top: -15px; margin-bottom: 15px; }
-
-        /* --------------------------------- */
-        /* HISTORY STYLES (สำหรับหน้าประวัติ) */
-        /* --------------------------------- */
-        .history-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 15px; background-color: #f9f9f9; }
-        .history-item { margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #eee; }
-        .history-item:last-child { border-bottom: none; margin-bottom: 0; }
-        .history-label { font-weight: bold; color: #555; font-size: 0.85em; display: inline-block; width: 150px; }
-        .history-value { font-weight: normal; color: #333; font-size: 0.95em; }
-        .history-action-btn { background-color: #ff9800; margin-top: 20px; }
-        .history-action-btn:hover { background-color: #e68900; }
-
-        /* PDPA Modal Styles (เหมือนเดิม) */
-        #pdpaModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.5); display: none; justify-content: center;
-            align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: #fff; padding: 25px; border-radius: 10px; max-width: 90%;
-            max-height: 80%; overflow-y: auto; position: relative;
-        }
-        .modal-content h3 { color: #00b900; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0; }
-        .modal-content p { font-size: 0.9em; line-height: 1.6; }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer; color: #888; }
-        .close-btn:hover { color: #333; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <img id="avatar" alt="Avatar">
-            <div>
-                <div id="hello">กำลังเชื่อมต่อ LINE...</div>
-                <small id="uid">userId: -</small>
-            </div>
-        </header>
-
-        <div id="form-view">
-            <form id="f">
-                
-                <div class="pdpa-group form-group">
-                    <label for="consent_pdpa">
-                        <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
-                        **ยืนยัน PDPA** (ยอมรับข้อกำหนดและเงื่อนไข)
-                    </label>
-                    <div class="pdpa-consent-text">
-                        <a id="showPdpaModal">อ่านเพิ่มเติมเกี่ยวกับข้อความเงื่อนไขการยินยอม</a>
-                    </div>
-                </div>
-
-                <h2>ข้อมูลผู้ว่าจ้าง</h2>
-                
-                <div class="form-group">
-                    <label for="user_type">คุณเป็นใคร/องค์กรประเภทใด?</label>
-                    <select id="user_type" name="user_type" required>
-                        <option value="" disabled selected>--- เลือกประเภท ---</option>
-                        <option value="บริษัท / องค์กร">บริษัท / องค์กร</option>
-                        <option value="บุคคลทั่วไป / เจ้าของกิจการรายย่อย">บุคคลทั่วไป / เจ้าของกิจการรายย่อย</option>
-                        <option value="อื่นๆ">อื่นๆ (กรุณาระบุ)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="company_org_group">
-                    <label for="company_or_org">ชื่อบริษัท / ชื่อบุคคลผู้ว่าจ้าง</label>
-                    <input id="company_or_org" name="company_or_org" placeholder="ระบุชื่อบริษัท / ชื่อบุคคล" required>
-                </div>
-                
-                <div class="row">
-                    <div class="form-group">
-                        <label for="contact_person">ชื่อผู้ติดต่อ</label>
-                        <input id="contact_person" name="contact_person" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_phone">เบอร์โทรศัพท์ติดต่อ (10 หลัก)</label>
-                        <input id="contact_phone" name="contact_phone" type="tel" pattern="[0-9]{10}" placeholder="08x-xxxxxxx" required>
-                    </div>
-                </div>
-
-                <h2>ข้อมูลประกาศงาน</h2>
-
-                <div class="row">
-                    <div class="form-group">
-                        <label for="job_title_select">ตำแหน่งงานที่ต้องการจ้าง</label>
-                        <select id="job_title_select" name="job_title_select" required>
-                            <option value="" disabled selected>--- เลือกตำแหน่ง ---</option>
-                            <option value="พนักงานเสิร์ฟ">พนักงานเสิร์ฟ</option>
-                            <option value="พนักงานขาย">พนักงานขาย</option>
-                            <option value="ช่างซ่อม">ช่างซ่อม</option>
-                            <option value="แม่บ้าน">แม่บ้าน</option>
-                            <option value="อื่นๆ">อื่นๆ (กรุณาระบุ)</option>
-                        </select>
-                    </div>
-                    <div class="form-group hidden" id="job_title_other_group">
-                        <label for="job_title_other">ตำแหน่งงาน (ระบุ)</label>
-                        <input id="job_title_other" name="job_title_other" placeholder="เช่น ผู้จัดการ/แคชเชียร์">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="job_category">ประเภทงาน/หมวดงาน</label>
-                        <select id="job_category" name="job_category" required>
-                            <option value="" disabled selected>--- เลือกหมวดงาน ---</option>
-                            <option value="งานบริการ (Service)">งานบริการ (Service)</option>
-                            <option value="งานขาย (Sales)">งานขาย (Sales)</option>
-                            <option value="งานแม่บ้าน / ทำความสะอาด (Housekeeping)">งานแม่บ้าน / ทำความสะอาด (Housekeeping)</option>
-                            <option value="งานช่าง / ซ่อมบำรุง (Technician)">งานช่าง / ซ่อมบำรุง (Technician)</option>
-                            <option value="งานขับรถ / ส่งของ (Driver)">งานขับรถ / ส่งของ (Driver)</option>
-                            <option value="งานครัว / ทำอาหาร (Kitchen)">งานครัว / ทำอาหาร (Kitchen)</option>
-                            <option value="งานร้านกาแฟ / ร้านอาหาร (Café & Restaurant)">งานร้านกาแฟ / ร้านอาหาร (Café & Restaurant)</option>
-                            <option value="งานทั่วไป / รายวัน (General Labor)">งานทั่วไป / รายวัน (General Labor)</option>
-                            <option value="งานออฟฟิศ / ธุรการ (Office / Admin)">งานออฟฟิศ / ธุรการ (Office / Admin)</option>
-                            <option value="อื่นๆ">อื่นๆ (กรุณาระบุ)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="job_description">รายละเอียดงาน / คุณสมบัติ</label>
-                    <textarea id="job_description" name="job_description" rows="3" placeholder="อธิบายหน้าที่/คุณสมบัติโดยละเอียด"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="location_area">สถานที่ทำงาน / ที่ตั้ง (พิมพ์)</label>
-                    <input id="location_area" name="location_area" placeholder="พิมพ์ชื่อสถานที่ทำงาน เช่น ร้านอาหาร A สาขาคลองหลวง" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="district">อำเภอ/เขต (ในปทุมธานี)</label>
-                    <select id="district" name="district" required>
-                        <option value="" disabled selected>--- เลือกอำเภอ ---</option>
-                        <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
-                        <option value="คลองหลวง">คลองหลวง</option>
-                        <option value="ธัญบุรี">ธัญบุรี</option>
-                        <option value="หนองเสือ">หนองเสือ</option>
-                        <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
-                        <option value="ลำลูกกา">ลำลูกกา</option>
-                        <option value="สามโคก">สามโคก</option>
-                    </select>
-                </div>
-
-                <div class="row">
-                    <div class="form-group">
-                        <label for="headcount">จำนวนคนที่ต้องการ</label>
-                        <input id="headcount" name="headcount" type="number" min="1" value="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="wage_type">รูปแบบค่าจ้าง</label>
-                        <select id="wage_type" name="wage_type" required>
-                            <option value="" disabled selected>--- เลือกรูปแบบ ---</option>
-                            <option value="ชั่วโมงละ">ชั่วโมงละ</option>
-                            <option value="วันละ">วันละ</option>
-                            <option value="เหมาจ้าง">เหมาจ้าง</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group hidden" id="lump_sum_days_group">
-                    <label for="lump_sum_days">เหมาจ้างเป็นจำนวนกี่วัน?</label>
-                    <input id="lump_sum_days" name="lump_sum_days" type="number" min="1" placeholder="ใส่จำนวนวัน เช่น 3" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="wage_amount">จำนวนค่าจ้าง (ตัวเลขเท่านั้น)</label>
-                    <input id="wage_amount" name="wage_amount" type="number" inputmode="numeric" placeholder="เช่น 50, 1200, 15000" required>
-                    <div class="hint">*กรุณากรอกเฉพาะตัวเลข (เช่น 50, 1200)</div>
-                </div>
-                
-                <div class="row">
-                    <div class="form-group">
-                        <label for="start_date">วันที่เริ่มงาน (ถ้ามี)</label>
-                        <input id="start_date" name="start_date" type="date">
-                    </div>
-                    <div class="form-group">
-                        <label for="start_time">เวลาเริ่มงาน</label>
-                        <input id="start_time" name="start_time" type="time">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="contact_line_id">LINE ID ผู้ติดต่อ (ถ้ามี)</label>
-                    <input id="contact_line_id" name="contact_line_id" placeholder="เช่น joblocal_contact">
-                </div>
-
-                <button id="submitBtn" type="submit" disabled>กำลังเชื่อมต่อ LINE…</button>
-                <div id="status" class="status"></div>
-                
-                <input type="hidden" name="line_user_id" id="line_user_id">
-                <input type="hidden" name="line_display_name" id="line_display_name">
-                <input type="hidden" name="job_title" id="job_title_final">
-            </form>
-        </div>
-        
-        <div id="history-view" class="hidden">
-            <h2 style="color: #00b900;">ประวัติส่วนตัวการประกาศงาน 📄</h2>
-            <p id="history-message" style="font-size: 0.9em;">
-                ✅ **คุณได้ส่งฟอร์มประกาศงานเรียบร้อยแล้ว!** นี่คือข้อมูลล่าสุดที่บันทึกไว้ในระบบ
-                <span style="font-weight: bold; color: #d9534f;">คุณไม่สามารถส่งฟอร์มซ้ำได้อีก</span> ขอบคุณที่ใช้บริการค่ะ
-            </p>
-            
-            <div id="latest-submission-card" class="history-card">
-                </div>
-
-            <button id="closeWindowBtn" class="history-action-btn" style="background-color: #5bc0de;">ปิดหน้าต่าง</button>
-        </div>
-    </div>
-
-    <div id="pdpaModal">
-        <div class="modal-content">
-            <span class="close-btn" id="closePdpaModal">&times;</span>
-            <h3>ข้อความเงื่อนไขการยินยอม (สำหรับแบบฟอร์มนายจ้าง)</h3>
-            
-            <p>ข้าพเจ้าขอให้ความยินยอมในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (“พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล”) ดังรายละเอียดต่อไปนี้...</p>
-            
-            <h4>1. วัตถุประสงค์ของการเก็บข้อมูล</h4>
-            <ul>
-                <li>การประกาศงานและการจับคู่งานระหว่างผู้ว่าจ้างและผู้หางานภายในจังหวัดปทุมธานี</li>
-                <li>การติดต่อ แจ้งผลการประกาศงาน หรือส่งต่อข้อมูลผู้สมัครที่เหมาะสม</li>
-                <li>การตรวจสอบความถูกต้องของข้อมูลและความน่าเชื่อถือของผู้ว่าจ้าง</li>
-                <li>การพัฒนาระบบและการให้บริการของโครงการ JobLocal</li>
-            </ul>
-            
-            <h4>2. ประเภทข้อมูลส่วนบุคคลที่เก็บรวบรวม</h4>
-            <p>ข้อมูลส่วนบุคคล ได้แก่ ชื่อ-นามสกุล เบอร์โทรศัพท์ อีเมล ชื่อบริษัทหรือชื่อบุคคลผู้ว่าจ้าง ที่อยู่ สถานที่ประกอบการ ช่องทางติดต่อ และข้อมูลอื่นที่เกี่ยวข้องกับการประกาศงาน</p>
-            
-            <h4>3. การเปิดเผยข้อมูลแก่บุคคลภายนอก</h4>
-            <p>ข้อมูลของข้าพเจ้าจะถูกเปิดเผยเฉพาะกับ</p>
-            <ul>
-                <li>ผู้หางานที่ลงทะเบียนในระบบ JobLocal</li>
-                <li>หน่วยงานภาครัฐหรือพันธมิตรโครงการเพื่อวัตถุประสงค์ในการตรวจสอบความถูกต้องของข้อมูล</li>
-            </ul>
-            <p>ทั้งนี้ จะไม่เปิดเผยข้อมูลเพื่อการค้า หรือส่งต่อให้บุคคลที่สามโดยไม่ได้รับความยินยอม</p>
-            
-            <h4>4. สิทธิของเจ้าของข้อมูล</h4>
-            <p>ข้าพเจ้าทราบดีว่ามีสิทธิในการเข้าถึงข้อมูลส่วนบุคคลของตน ขอแก้ไขข้อมูลให้ถูกต้อง และสามารถถอนความยินยอมได้ทุกเมื่อ โดยติดต่อทีมงาน JobLocal Pathum Thani ผ่านช่องทาง LINE Official Account</p>
-            
-            <h4>5. ระยะเวลาการเก็บรักษาข้อมูล</h4>
-            <p>ข้อมูลจะถูกจัดเก็บไว้นานไม่เกิน 2 ปี นับจากวันที่ส่งแบบฟอร์ม หรือจนกว่าจะมีการขอถอนข้อมูล</p>
-            
-            <h4>6. การให้ความยินยอม</h4>
-            <p>ข้าพเจ้ารับทราบและเข้าใจเงื่อนไขดังกล่าว และยินยอมให้โครงการ JobLocal Pathum Thani เก็บ รวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตามวัตถุประสงค์ข้างต้น</p>
-        </div>
-    </div>
-
-    <script>
+<script>
     // --- CONFIG ---
     // ใช้ LIFF ID ของคุณ
-    const LIFF_ID = "2008394776-k9v7m3Wg"; 
+    const LIFF_ID = "2008394776-k9v7m3Wg";  
     // Google Apps Script Web App URL ที่ deploy ใหม่
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbw_5J5oQpxCsn6BJoyexQRR0Lm6ddzF7ueSvHR4m52JPgiSnkM6ZwRkHnxw5sxd3aDknw/exec"; 
-    // --- End CONFIG --- 
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbw_5J5oQpxCsn6BJoyexQRR0Lm6ddzF7ueSvHR4m52JPgiSnkM6ZwRkHnxw5sxd3aDknw/exec";  
+    // --- End CONFIG ---  
 
     const $ = id => document.getElementById(id);
     const form = $("f");
@@ -336,13 +33,12 @@
     const wageTypeSelect = $("wage_type");
     const lumpSumDaysGroup = $("lump_sum_days_group");
     const lumpSumDaysInput = $("lump_sum_days");
-    const closeWindowBtn = $("closeWindowBtn"); // ปุ่มปิดหน้าต่างใหม่
-
+    
     // Views
     const formView = $("form-view");
     const historyView = $("history-view");
     const latestSubmissionCard = $("latest-submission-card");
-
+    const historyMessage = $("history-message"); // ข้อความแจ้งเตือน
 
     // --- LIFF Initialization ---
     async function initializeLiff() {
@@ -369,7 +65,8 @@
             const hasSubmitted = await checkSubmissionHistory(userProfile.userId);
             
             if (hasSubmitted) {
-                showView('history');
+                // ส่งค่าที่ตรวจสอบได้ว่าเคยส่งแล้ว
+                showView('history', true); 
             } else {
                 showView('form');
             }
@@ -381,8 +78,8 @@
         }
     }
 
-    // --- NEW FUNCTION: สลับหน้าจอ ---
-    function showView(viewName) {
+    // --- NEW FUNCTION: สลับหน้าจอ (ปรับปรุง) ---
+    function showView(viewName, isHistory = false) {
         if (viewName === 'form') {
             formView.classList.remove('hidden');
             historyView.classList.add('hidden');
@@ -392,6 +89,50 @@
         } else if (viewName === 'history') {
             formView.classList.add('hidden');
             historyView.classList.remove('hidden');
+            
+            // ปรับข้อความและปุ่มใน History View
+            if (isHistory) {
+                historyMessage.innerHTML = `
+                    <span style="color: green; font-weight: bold;">
+                        ✅ คุณได้ส่งฟอร์มประกาศงานล่าสุดเรียบร้อยแล้ว!
+                    </span>
+                    <br>
+                    คุณสามารถ **ส่งฟอร์มประกาศงานใหม่** หรือ **แชร์ข้อมูล** งานล่าสุดได้
+                `;
+                
+                // *** สร้างปุ่ม Action ใหม่ 3 ปุ่ม ***
+                const oldButton = $("closeWindowBtn");
+                if (oldButton) oldButton.remove(); // ลบปุ่มเดิมออก
+                
+                // สร้าง Box สำหรับใส่ปุ่ม
+                let actionBox = $("historyActionBox");
+                if (!actionBox) {
+                    actionBox = document.createElement('div');
+                    actionBox.id = 'historyActionBox';
+                    actionBox.style.marginTop = '20px';
+                    historyView.appendChild(actionBox);
+                }
+                
+                actionBox.innerHTML = `
+                    <button id="btnNewForm" class="btn-primary" style="margin-bottom: 10px;">ส่งฟอร์มประกาศงานใหม่</button>
+                    <button id="btnSendFlex" class="btn-success" style="background-color: #ff9800; margin-bottom: 10px;">ดู/แชร์ประกาศงาน (Flex Message)</button>
+                    <button id="btnCloseWindow" class="btn-secondary" style="background-color: #5bc0de;">ปิดหน้าต่าง</button>
+                `;
+                
+                // 1. ส่งฟอร์มใหม่
+                $("btnNewForm").addEventListener('click', () => {
+                    form.reset(); // เคลียร์ฟอร์มเก่า (สำคัญ)
+                    showView('form');
+                });
+                
+                // 2. ส่ง Flex Message
+                $("btnSendFlex").addEventListener('click', sendFlexMessage);
+                
+                // 3. ปิดหน้าต่าง
+                $("btnCloseWindow").addEventListener('click', () => {
+                     if (liff.closeWindow) liff.closeWindow();
+                });
+            }
         }
     }
 
@@ -409,7 +150,7 @@
             // *** สำคัญ: ตรวจสอบ Key ที่มาจาก GAS Endpoint (ต้องมี json.latestSubmission)
             if (json.status === "check_history" && json.hasSubmitted && json.latestSubmission) {
                 // เก็บข้อมูลล่าสุดไว้
-                latestSubmissionData = json.latestSubmission; 
+                latestSubmissionData = json.latestSubmission;  
                 // แสดงข้อมูลประวัติบนหน้า History View
                 renderHistoryCard(latestSubmissionData);
                 return true; // บอกว่าเคยส่งแล้ว
@@ -425,7 +166,7 @@
         }
     }
     
-    // --- NEW FUNCTION: แสดงผลประวัติใน Card (ปรับปรุงการแสดงผล) ---
+    // --- renderHistoryCard (ปรับปรุงการแสดงผล) ---
     function renderHistoryCard(data) {
         let html = '<p style="color:#00b900; font-weight:bold; margin-bottom: 15px;">**รายการที่คุณประกาศไว้ล่าสุด**</p>';
         
@@ -436,18 +177,18 @@
             'ตำแหน่งงาน': 'ตำแหน่งงาน',
             'ชื่อบริษัท/บุคคล': 'บริษัท/บุคคล',
             'เบอร์โทรศัพท์': 'เบอร์โทรติดต่อ',
-            'job_category': 'ประเภทงาน',
-            'job_description': 'รายละเอียดงาน', // ควรเป็นบรรทัดใหม่
-            'location_area': 'สถานที่ทำงาน',
-            'district': 'พื้นที่ (อำเภอ)',
-            'wage_type': 'รูปแบบค่าจ้าง',
-            'wage_amount': 'จำนวนค่าจ้าง (บาท)',
-            'start_date': 'วันที่เริ่มงาน',
-            'start_time': 'เวลาเริ่มงาน'
+            'ประเภทงาน': 'ประเภทงาน', // Key จาก GAS
+            'รายละเอียดงาน': 'รายละเอียดงาน', // Key จาก GAS
+            'สถานที่ทำงาน': 'สถานที่ทำงาน', // Key จาก GAS
+            'อำเภอ': 'พื้นที่ (อำเภอ)', // Key จาก GAS
+            'รูปแบบค่าจ้าง': 'รูปแบบค่าจ้าง', // Key จาก GAS
+            'จำนวนค่าจ้าง (บาท)': 'จำนวนค่าจ้าง', // Key จาก GAS
+            'วันที่เริ่มงาน': 'วันที่เริ่มงาน', // Key จาก GAS
+            'เวลาเริ่มงาน': 'เวลาเริ่มงาน' // Key จาก GAS
         };
         
-        // กรองข้อมูลที่ไม่ต้องการแสดงหรือข้อมูลที่เป็นค่าว่าง
-        const ignoreKeys = ['line_user_id', 'line_display_name', 'pdpa_consent', 'lump_sum_days', 'job_title_select', 'job_title_other'];
+        // กรองข้อมูลที่ไม่ต้องการแสดงหรือข้อมูลที่เป็นค่าว่าง (ใช้ key ที่ส่งมาจาก GAS)
+        const ignoreKeys = ['LINE User ID', 'ชื่อ LINE', 'รูปโปรไฟล์ URL', 'ยินยอม PDPA', 'เหมาจ้างกี่วัน', 'ตำแหน่งงานที่ต้องการจ้าง', 'LINE ID ผู้ติดต่อ', 'ประเภทผู้ว่าจ้าง', 'ชื่อผู้ติดต่อ', 'จำนวนคนที่ต้องการ'];
 
         // วนลูปแสดงผล
         for (const key in data) {
@@ -456,9 +197,11 @@
                 let value = data[key];
                 
                 // จัดรูปแบบเฉพาะบาง Field
-                if (key === 'wage_amount') {
+                if (key === 'จำนวนค่าจ้าง (บาท)') {
                     value = `${parseFloat(value).toLocaleString('th-TH')} บาท`;
-                } else if (key === 'job_description') {
+                } 
+                
+                if (key === 'รายละเอียดงาน') {
                     // สำหรับรายละเอียดงาน ให้แสดงในบรรทัดใหม่
                     html += `
                         <div class="history-item" style="border-bottom: none;">
@@ -479,11 +222,11 @@
         }
         
         // หากเลือกเหมาจ้าง ต้องแสดงจำนวนวันเหมาจ้างด้วย
-        if (data['wage_type'] === 'เหมาจ้าง' && data['lump_sum_days']) {
-             html += `
+        if (data['รูปแบบค่าจ้าง'] === 'เหมาจ้าง' && data['เหมาจ้างกี่วัน']) {
+              html += `
                 <div class="history-item">
                     <span class="history-label">จำนวนวันเหมาจ้าง:</span>
-                    <span class="history-value">${data['lump_sum_days']} วัน</span>
+                    <span class="history-value">${data['เหมาจ้างกี่วัน']} วัน</span>
                 </div>
             `;
         }
@@ -492,6 +235,121 @@
         latestSubmissionCard.style.borderLeft = '5px solid #00b900'; // เพิ่มเส้นสีเขียวด้านซ้ายให้ดูเด่น
     }
 
+    // --- NEW FUNCTION: สร้างและส่ง Flex Message ---
+    async function sendFlexMessage() {
+        if (!liff.isApiAvailable('sendMessages') || !latestSubmissionData) {
+            alert('❌ ฟังก์ชันนี้ใช้ได้เฉพาะใน LINE Browser เท่านั้น หรือไม่มีข้อมูลล่าสุด');
+            return;
+        }
+
+        // จัดการข้อมูลที่ต้องใช้ใน Flex
+        const data = latestSubmissionData;
+        const wageText = data['รูปแบบค่าจ้าง'] && data['จำนวนค่าจ้าง (บาท)'] ? 
+                        `${data['รูปแบบค่าจ้าง']} ${parseFloat(data['จำนวนค่าจ้าง (บาท)']).toLocaleString('th-TH')} บาท` : 'N/A';
+        const locationText = `${data['สถานที่ทำงาน'] || 'N/A'} (${data['อำเภอ'] || 'N/A'})`;
+        const jobTitle = data['ตำแหน่งงาน'] || 'งานใหม่';
+
+        // สร้าง Flex Message JSON (ใช้ Bubble Template ง่ายๆ)
+        const flexMessage = {
+            type: "flex",
+            altText: `ประกาศงาน: ${jobTitle} - ${data['ชื่อบริษัท/บุคคล'] || 'N/A'}`,
+            contents: {
+                type: "bubble",
+                size: "giga",
+                header: {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                        {
+                            type: "text",
+                            text: `📣 ประกาศงาน: ${jobTitle}`,
+                            weight: "bold",
+                            color: "#FFFFFF",
+                            size: "md",
+                            wrap: true
+                        }
+                    ],
+                    paddingAll: "15px",
+                    backgroundColor: "#00B900"
+                },
+                body: {
+                    type: "box",
+                    layout: "vertical",
+                    spacing: "sm",
+                    contents: [
+                        {
+                            type: "box",
+                            layout: "baseline",
+                            contents: [
+                                { type: "text", text: "บริษัท/ผู้ว่าจ้าง:", color: "#aaaaaa", flex: 3 },
+                                { type: "text", text: data['ชื่อบริษัท/บุคคล'] || "N/A", flex: 5, wrap: true }
+                            ]
+                        },
+                        {
+                            type: "box",
+                            layout: "baseline",
+                            contents: [
+                                { type: "text", text: "ค่าจ้าง:", color: "#aaaaaa", flex: 3 },
+                                { type: "text", text: wageText, color: "#FF6600", flex: 5, weight: "bold" }
+                            ]
+                        },
+                        {
+                            type: "box",
+                            layout: "baseline",
+                            contents: [
+                                { type: "text", text: "สถานที่:", color: "#aaaaaa", flex: 3 },
+                                { type: "text", text: locationText, flex: 5, wrap: true }
+                            ]
+                        },
+                        {
+                            type: "box",
+                            layout: "vertical",
+                            margin: "md",
+                            contents: [
+                                { type: "text", text: "รายละเอียด:", color: "#aaaaaa", size: "sm" },
+                                { type: "text", text: data['รายละเอียดงาน'] ? data['รายละเอียดงาน'].substring(0, 150) + '...' : "N/A", wrap: true, margin: "sm", size: "sm" }
+                            ]
+                        },
+                        {
+                            type: "box",
+                            layout: "baseline",
+                            margin: "md",
+                            contents: [
+                                { type: "text", text: "สถานะ:", color: "#aaaaaa", flex: 3 },
+                                { type: "text", text: data['สถานะ'] || "รอการตรวจสอบ", color: (data['สถานะ'] === 'รอการตรวจสอบ' ? '#FFCC00' : '#009900'), flex: 5, weight: "bold" }
+                            ]
+                        }
+                    ]
+                },
+                footer: {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                        {
+                            type: "button",
+                            action: {
+                                type: "uri",
+                                label: "คลิกเพื่อดูรายละเอียดและสมัคร",
+                                // ใช้ liff.getLineURL() หรือ URL ของเว็บไซต์สมัครงานจริง
+                                uri: "https://liff.line.me/" + LIFF_ID 
+                            },
+                            style: "primary",
+                            color: "#00B900"
+                        }
+                    ]
+                }
+            }
+        };
+
+        try {
+            await liff.sendMessages([flexMessage]);
+            alert('ส่ง Flex Message เข้า LINE Chat เรียบร้อยแล้ว! เพื่อใช้แชร์หรือเก็บไว้');
+            // ไม่ต้องปิดหน้าต่างทันที ให้ผู้ใช้ตัดสินใจปิดเอง
+        } catch (err) {
+            console.error('Error sending Flex Message:', err);
+            alert('❌ ไม่สามารถส่ง Flex Message ได้ (โปรดตรวจสอบสิทธิ์ LIFF และข้อมูล)');
+        }
+    }
 
     // --- Event Listeners ---
     // 1. PDPA Modal Handlers (เหมือนเดิม)
@@ -518,6 +376,7 @@
         } else {
             jobTitleOtherGroup.classList.add('hidden');
             jobTitleOtherInput.removeAttribute('required');
+            jobTitleOtherInput.value = '';
         }
     });
 
@@ -532,28 +391,23 @@
         }
     });
 
-    // 3. History View Action Button
-    closeWindowBtn.addEventListener('click', () => {
-        if (liff.closeWindow) {
-            liff.closeWindow();
-        }
-    });
-
-    // 4. Form Submission Handler (ปรับปรุงส่วนสำเร็จ)
+    // *** ลบ Event Listener ของ closeWindowBtn เดิมออก เพราะถูกจัดการใน showView('history') แล้ว ***
+    
+    // 4. Form Submission Handler (เหมือนเดิม)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        if (!liffReady || !userIdToken || !userProfile.userId) { 
-            statusDiv.textContent = "❌ ข้อมูล LINE ไม่สมบูรณ์ กรุณารอหรือลองใหม่"; 
+        if (!liffReady || !userIdToken || !userProfile.userId) {  
+            statusDiv.textContent = "❌ ข้อมูล LINE ไม่สมบูรณ์ กรุณารอหรือลองใหม่";  
             submitBtn.disabled = false;
             submitBtn.textContent = "ส่งประกาศงาน";
-            return; 
+            return;  
         }
         
         // รวบรวมตำแหน่งงานจริง
         const selectedJobTitle = jobTitleSelect.value;
-        const finalJobTitle = selectedJobTitle === 'อื่นๆ' 
-            ? jobTitleOtherInput.value 
+        const finalJobTitle = selectedJobTitle === 'อื่นๆ'  
+            ? jobTitleOtherInput.value  
             : selectedJobTitle;
         
         // รวบรวมข้อมูลทั้งหมดที่ส่ง
@@ -570,7 +424,7 @@
             district: $("district").value,
             headcount: $("headcount").value,
             wage_type: wageTypeSelect.value,
-            lump_sum_days: wageTypeSelect.value === 'เหมาจ้าง' ? lumpSumDaysInput.value : "", 
+            lump_sum_days: wageTypeSelect.value === 'เหมาจ้าง' ? lumpSumDaysInput.value : "",  
             wage_amount: $("wage_amount").value,
             start_date: $("start_date").value,
             start_time: $("start_time").value,
@@ -588,7 +442,7 @@
                 displayName: userProfile.displayName,
                 pictureUrl: userProfile.pictureUrl || ""
             },
-            data: formData 
+            data: formData  
         };
 
         try {
@@ -598,18 +452,18 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(payload),
-                mode: 'no-cors' 
+                mode: 'no-cors'  
             });
 
             if (res.type === 'opaque') {
                 statusDiv.textContent = "✅ ส่งสำเร็จ! กำลังแสดงประวัติล่าสุด...";
                 submitBtn.textContent = "ส่งสำเร็จ";
                 
-                // ตรวจสอบประวัติอีกครั้งเพื่อดึงข้อมูลที่เพิ่งส่งไป
-                await checkSubmissionHistory(userProfile.userId); 
+                // ตรวจสอบประวัติอีกครั้งเพื่อดึงข้อมูลที่เพิ่งส่งไป (เพื่อให้ latestSubmissionData อัพเดท)
+                await checkSubmissionHistory(userProfile.userId);  
                 
                 // สลับไปหน้าประวัติ
-                showView('history'); 
+                showView('history', true);  
                 
                 return;
             }
@@ -625,5 +479,3 @@
     // Start LIFF
     initializeLiff();
 </script>
-</body>
-</html>
