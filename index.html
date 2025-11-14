@@ -4,8 +4,10 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title> teat16หางาน – JobLocal</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> 
-    
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <!-- 💥 เพิ่ม Google API Script เพื่อให้ google.script.run ทำงานได้ -->
+    <script src="https://apis.google.com/js/api.js"></script>
+
     <style>
         /* BASE & LAYOUT (CSS คงเดิมเพื่อความสวยงาม) */
         body { font-family: 'Sukhumvit Set', 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background-color: #f8f8f8; color: #333; }
@@ -279,7 +281,7 @@
     <script>
         // --- CONFIG ---
         const LIFF_ID = "2008394776-k9v7m3Wg";
-        const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyoq8wacEW1T3eQJB6vgYkuj3OlO6YtIWKA3HrwAH2X5UV6hOrhXKUb5cIBxm-RlX_W/exec";
+        // ❌ ลบตัวแปร GAS_ENDPOINT ออก
         // --- End CONFIG --- 
 
         const $ = id => document.getElementById(id);
@@ -365,7 +367,7 @@
                     userProfile = p; 
                     $("avatar").src = p.pictureUrl || '';
                     $("hello").textContent = `สวัสดี ${p.displayName}`;
-                    $("uid").textContent   = `userId: ${p.userId}`;
+                    $("uid").textContent = `userId: ${p.userId}`;
                     
                     // เติมค่า LIFF ลงใน Hidden Fields
                     $("line_user_id").value = p.userId;
@@ -380,14 +382,14 @@
                     console.error("Error getting profile:", err);
                 });
 
-            // 2. จัดการการส่งฟอร์ม (*** โค้ดที่ปรับปรุงเพื่อการ Debug ***)
+                // 2. จัดการการส่งฟอร์ม (💥 ใช้ google.script.run แทน fetch/POST เพื่อแก้ปัญหา Network Error)
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
                     const btn = $("submitBtn");
                     const status = $("status");
                     
-                    if (!userIdToken || !userProfile.userId) { 
+                    if (!userProfile.userId) { 
                         status.textContent = "❌ ข้อมูล LINE ไม่สมบูรณ์ กรุณารอหรือลองใหม่"; 
                         liff.login();
                         return; 
@@ -402,7 +404,7 @@
                     }
 
                     btn.disabled = true;
-                    status.textContent = "กำลังส่งข้อมูล…";
+                    status.textContent = "กำลังส่งข้อมูล (ผ่าน Google Script)...";
 
                     const formData = new FormData(form);
                     // ลบ field ที่ไม่ต้องการส่งไป GAS 
@@ -420,40 +422,42 @@
                     
                     const data = Object.fromEntries(formData.entries());
 
+                    // 💥 โครงสร้างข้อมูลที่ส่งไปยัง Apps Script function processFormData(fullData)
+                    const fullData = {
+                        profile: userProfile,
+                        data: data
+                    };
+
                     try {
-                        const res = await fetch(GAS_ENDPOINT, {
-                            method: "POST",
-                            headers: {"Content-Type":"application/json"},
-                            // ส่งข้อมูล LIFF Profile, ID Token, และ Form Data
-                            body: JSON.stringify({ idToken: userIdToken, profile: userProfile, data }) 
-                        });
-                        
-                        // **เพิ่มการตรวจสอบ HTTP Status และ Text Error**
-                        if (!res.ok) {
-                            const errorText = await res.text();
-                            // พิมพ์ Error ใน Console เพื่อการ Debug
-                            console.error("HTTP Error Status:", res.status, errorText); 
-                            // แสดง Error บนหน้าจอ
-                            status.textContent = `❌ ส่งไม่สำเร็จ: Server Error (${res.status})`; 
-                            btn.disabled = false;
-                            return;
-                        }
-                        
-                        // ถ้าสถานะ OK (200) ให้ลองอ่าน JSON
-                        const json = await res.json();
-                        
-                        if (json.ok) {
-                            status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
-                            setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 1500);
-                        } else {
-                            // Error จากโค้ด GAS (เช่น Sheet not found หรือ Processing error)
-                            status.textContent = "❌ ส่งไม่สำเร็จ: " + (json.error || "unknown");
-                            btn.disabled = false;
-                        }
+                        // ** เริ่มการใช้ google.script.run **
+                        // processFormData คือชื่อฟังก์ชันใน Apps Script (Code.gs)
+                        google.script.run
+                            .withSuccessHandler(function(response) {
+                                // เมื่อ Apps Script ทำงานสำเร็จ (ไม่ว่าจะบันทึกสำเร็จหรือไม่)
+                                if (response.ok) {
+                                    status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
+                                    // ปิดหน้าต่าง LIFF
+                                    setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 1500);
+                                } else {
+                                    // Error ที่ถูกส่งมาจาก Apps Script (เช่น Sheet not found)
+                                    status.textContent = "❌ ส่งไม่สำเร็จ: " + response.message;
+                                    btn.disabled = false;
+                                }
+                            })
+                            .withFailureHandler(function(error) {
+                                // เมื่อเกิดข้อผิดพลาดในการเรียกใช้ (เช่น ฟังก์ชันไม่มี, การเชื่อมต่อมีปัญหา)
+                                console.error("GAS Execution Error:", error);
+                                status.textContent = "❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server: " + error.message;
+                                btn.disabled = false;
+                            })
+                            // ส่งข้อมูลทั้งหมดไป
+                            .processFormData(fullData); 
+                        // ** จบการใช้ google.script.run **
+
                     } catch (err) {
-                        // ดักจับ Network Error (เช่น ไม่มีเน็ต/Timeout) หรือ JSON Parsing Error
-                        console.error("Fetch/Processing Error:", err);
-                        status.textContent = "❌ เครือข่ายผิดพลาด";
+                        // ดักจับ Error ทั่วไปก่อนส่ง (ไม่น่าจะเกิดขึ้นเมื่อใช้ google.script.run)
+                        console.error("Local Error during submission:", err);
+                        status.textContent = "❌ เกิดข้อผิดพลาดภายใน: " + err.message;
                         btn.disabled = false;
                     }
                 });
@@ -461,7 +465,7 @@
             } catch (e) {
                 console.error(e);
                 $("hello").textContent = "ไม่สามารถโหลด LIFF ได้";
-                $("uid").textContent   = "";
+                $("uid").textContent = "";
                 $("submitBtn").disabled = true;
                 $("submitBtn").textContent = "LIFF Error";
             }
