@@ -3,14 +3,11 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title> ประกาศหางาน – JobLocal</title>
-    <!-- LIFF SDK สำหรับเชื่อมต่อกับ LINE -->
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <!-- Google API Script เพื่อให้ google.script.run ทำงานได้ -->
-    <script src="https://apis.google.com/js/api.js"></script>
-
+    <title>JobLocal - แบบฟอร์มประกาศงาน</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> 
+    
     <style>
-        /* BASE & LAYOUT (CSS คงเดิมเพื่อความสวยงาม) */
+        /* BASE & LAYOUT (CSS คงเดิมเพื่อความสวยงามและตอบสนอง) */
         body { font-family: 'Sukhumvit Set', 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background-color: #f8f8f8; color: #333; }
         .container { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); padding: 20px; }
 
@@ -283,6 +280,8 @@
     <script>
         // --- CONFIG ---
         const LIFF_ID = "2008394776-k9v7m3Wg";
+        // Google Apps Script Web App URL
+        const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyoq8wacEW1T3eQJB6vgYkuj3OlO6YtIWKA3HrwAH2X5UV6hOrhXKUb5cIBxm-RlX_W/exec";
         // --- End CONFIG --- 
 
         const $ = id => document.getElementById(id);
@@ -316,6 +315,7 @@
             pdpaModal.style.display = 'none';
         });
         pdpaModal.addEventListener('click', (e) => {
+            // ปิด Modal เมื่อคลิกนอกพื้นที่ Modal content
             if (e.target.id === 'pdpaModal') {
                 pdpaModal.style.display = 'none';
             }
@@ -324,6 +324,7 @@
         // --- Conditional Input Handlers ---
         userTypeSelect.addEventListener('change', (e) => {
             const val = e.target.value;
+            // เปลี่ยน Placeholder ตามประเภทผู้ว่าจ้าง
             if (val === 'อื่นๆ' || val === 'บุคคลทั่วไป / เจ้าของกิจการรายย่อย') {
                 companyOrgInput.placeholder = "ระบุชื่อบุคคล/กิจการ";
             } else {
@@ -332,18 +333,20 @@
         });
         
         jobTitleSelect.addEventListener('change', (e) => {
+            // แสดง/ซ่อนช่องกรอกตำแหน่ง "อื่นๆ"
             if (e.target.value === 'อื่นๆ') {
                 jobTitleOtherGroup.classList.remove('hidden');
                 jobTitleOtherInput.required = true;
             } else {
                 jobTitleOtherGroup.classList.add('hidden');
                 jobTitleOtherInput.required = false;
-                jobTitleOtherInput.value = ''; // Clear value when hidden
+                jobTitleOtherInput.value = ''; // เคลียร์ค่า
             }
         });
 
         // --- Wage Conditional Handler ---
         wageTypeSelect.addEventListener('change', (e) => {
+            // แสดง/ซ่อนช่องกรอกจำนวนวันสำหรับ "เหมาจ้าง"
             const isLumpSum = e.target.value === 'เหมาจ้าง';
             if (isLumpSum) {
                 lumpSumDaysGroup.classList.remove('hidden');
@@ -358,26 +361,31 @@
         // --- LIFF & Form Submission Logic ---
         (async () => {
             try {
-                // 1. LIFF Initialization
+                // 1. Initialize LIFF
                 await liff.init({ liffId: LIFF_ID });
 
-                if (!liff.isLoggedIn()) { liff.login(); return; }
+                // 2. Check Login Status
+                if (!liff.isLoggedIn()) { 
+                    liff.login(); 
+                    return; 
+                }
                 
+                // 3. Get ID Token for Security
                 userIdToken = liff.getIDToken();
 
-                // 2. Fetch Profile and Update UI
+                // 4. Get Profile and Update UI
                 liff.getProfile().then(p => {
                     userProfile = p; 
-                    $("avatar").src = p.pictureUrl || '';
+                    $("avatar").src = p.pictureUrl || 'https://placehold.co/56x56/cccccc/333333?text=N/A';
                     $("hello").textContent = `สวัสดี ${p.displayName}`;
-                    $("uid").textContent = `userId: ${p.userId}`;
+                    $("uid").textContent   = `userId: ${p.userId}`;
                     
                     // เติมค่า LIFF ลงใน Hidden Fields
                     $("line_user_id").value = p.userId;
                     $("line_display_name").value = p.displayName;
                     
                     $("submitBtn").textContent = "ส่งประกาศงาน";
-                    $("submitBtn").disabled = false;
+                    $("submitBtn").disabled = false; // Enable button once profile is loaded
                 }).catch(err => {
                     $("hello").textContent = "❌ ดึงโปรไฟล์ไม่ได้!";
                     $("uid").textContent = "Error: " + err.message;
@@ -385,20 +393,20 @@
                     console.error("Error getting profile:", err);
                 });
 
-                // 3. Form Submission Handler (using google.script.run for GAS)
+                // 5. Handle Form Submission
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
                     const btn = $("submitBtn");
                     const status = $("status");
                     
-                    if (!userProfile.userId) { 
+                    if (!userIdToken || !userProfile.userId) { 
                         status.textContent = "❌ ข้อมูล LINE ไม่สมบูรณ์ กรุณารอหรือลองใหม่"; 
                         liff.login();
                         return; 
                     }
                     
-                    // รวบรวมตำแหน่งงานจริง
+                    // รวบรวมตำแหน่งงานจริงจาก input/select
                     const selectedJobTitle = jobTitleSelect.value;
                     if (selectedJobTitle === 'อื่นๆ') {
                         $("job_title_final").value = jobTitleOtherInput.value;
@@ -407,10 +415,11 @@
                     }
 
                     btn.disabled = true;
-                    status.textContent = "กำลังส่งข้อมูล (ผ่าน Google Script)...";
+                    status.textContent = "กำลังส่งข้อมูล…";
 
                     const formData = new FormData(form);
-                    // ลบ field ที่ไม่ต้องการส่งไป GAS 
+                    
+                    // Cleanup form data before sending to GAS
                     formData.delete('job_title_select');
                     formData.delete('job_title_other');
                     
@@ -425,52 +434,48 @@
                     
                     const data = Object.fromEntries(formData.entries());
 
-                    // โครงสร้างข้อมูลที่ส่งไปยัง Apps Script function processFormData(fullData)
-                    const fullData = {
-                        profile: userProfile,
-                        data: data
-                    };
-
                     try {
-                        // ** เริ่มการใช้ google.script.run **
-                        // processFormData คือชื่อฟังก์ชันใน Apps Script (Code.gs)
-                        google.script.run
-                            .withSuccessHandler(function(response) {
-                                // เมื่อ Apps Script ทำงานสำเร็จ (ไม่ว่าจะบันทึกสำเร็จหรือไม่)
-                                if (response.ok) {
-                                    status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
-                                    // ปิดหน้าต่าง LIFF
-                                    setTimeout(() => { 
-                                        if (liff.isInClient() && liff.closeWindow) liff.closeWindow(); 
-                                        else console.log("Form submission complete. LIFF not closing outside LINE client.");
-                                    }, 1500);
-                                } else {
-                                    // Error ที่ถูกส่งมาจาก Apps Script (เช่น Sheet not found)
-                                    status.textContent = "❌ ส่งไม่สำเร็จ: " + response.message;
-                                    btn.disabled = false;
-                                }
-                            })
-                            .withFailureHandler(function(error) {
-                                // เมื่อเกิดข้อผิดพลาดในการเรียกใช้ (เช่น ฟังก์ชันไม่มี, การเชื่อมต่อมีปัญหา)
-                                console.error("GAS Execution Error:", error);
-                                status.textContent = "❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server: " + error.message;
-                                btn.disabled = false;
-                            })
-                            // ส่งข้อมูลทั้งหมดไป
-                            .processFormData(fullData); 
-
+                        const res = await fetch(GAS_ENDPOINT, {
+                            method: "POST",
+                            headers: {"Content-Type":"application/json"},
+                            // ส่งข้อมูล LIFF Profile, ID Token, และ Form Data
+                            body: JSON.stringify({ idToken: userIdToken, profile: userProfile, data }) 
+                        });
+                        
+                        // ตรวจสอบ HTTP Status
+                        if (!res.ok) {
+                            const errorText = await res.text();
+                            console.error("HTTP Error Status:", res.status, errorText); 
+                            status.textContent = `❌ ส่งไม่สำเร็จ: Server Error (${res.status})`; 
+                            btn.disabled = false;
+                            return;
+                        }
+                        
+                        // ถ้าสถานะ OK (200) ให้ลองอ่าน JSON
+                        const json = await res.json();
+                        
+                        if (json.ok) {
+                            status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
+                            // ปิด LIFF window หลังจากส่งสำเร็จ
+                            setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 1500);
+                        } else {
+                            // Error จากโค้ด GAS
+                            status.textContent = "❌ ส่งไม่สำเร็จ: " + (json.error || "unknown");
+                            btn.disabled = false;
+                        }
                     } catch (err) {
-                        // ดักจับ Error ทั่วไปก่อนส่ง (ไม่น่าจะเกิดขึ้นเมื่อใช้ google.script.run)
-                        console.error("Local Error during submission:", err);
-                        status.textContent = "❌ เกิดข้อผิดพลาดภายใน: " + err.message;
+                        // ดักจับ Network Error
+                        console.error("Fetch/Processing Error:", err);
+                        status.textContent = "❌ เครือข่ายผิดพลาด หรือมีข้อผิดพลาดในการประมวลผล";
                         btn.disabled = false;
                     }
                 });
 
             } catch (e) {
+                // Handle LIFF Initialization Error
                 console.error(e);
                 $("hello").textContent = "ไม่สามารถโหลด LIFF ได้";
-                $("uid").textContent = "";
+                $("uid").textContent   = "กรุณาเปิดใน LINE";
                 $("submitBtn").disabled = true;
                 $("submitBtn").textContent = "LIFF Error";
             }
