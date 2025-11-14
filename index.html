@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title> teat16หางาน – JobLocal</title>
+    <title> ประกาศหางาน – JobLocal</title>
+    <!-- LIFF SDK สำหรับเชื่อมต่อกับ LINE -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <!-- 💥 เพิ่ม Google API Script เพื่อให้ google.script.run ทำงานได้ -->
+    <!-- Google API Script เพื่อให้ google.script.run ทำงานได้ -->
     <script src="https://apis.google.com/js/api.js"></script>
 
     <style>
@@ -240,6 +241,7 @@
         </form>
     </div>
 
+    <!-- PDPA Modal -->
     <div id="pdpaModal">
         <div class="modal-content">
             <span class="close-btn" id="closePdpaModal">&times;</span>
@@ -281,7 +283,6 @@
     <script>
         // --- CONFIG ---
         const LIFF_ID = "2008394776-k9v7m3Wg";
-        // ❌ ลบตัวแปร GAS_ENDPOINT ออก
         // --- End CONFIG --- 
 
         const $ = id => document.getElementById(id);
@@ -337,6 +338,7 @@
             } else {
                 jobTitleOtherGroup.classList.add('hidden');
                 jobTitleOtherInput.required = false;
+                jobTitleOtherInput.value = ''; // Clear value when hidden
             }
         });
 
@@ -356,13 +358,14 @@
         // --- LIFF & Form Submission Logic ---
         (async () => {
             try {
+                // 1. LIFF Initialization
                 await liff.init({ liffId: LIFF_ID });
 
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 
                 userIdToken = liff.getIDToken();
 
-                // 1. ดึง Profile และอัปเดต UI (ใช้ .then() เพื่อให้ไม่บล็อก)
+                // 2. Fetch Profile and Update UI
                 liff.getProfile().then(p => {
                     userProfile = p; 
                     $("avatar").src = p.pictureUrl || '';
@@ -382,7 +385,7 @@
                     console.error("Error getting profile:", err);
                 });
 
-                // 2. จัดการการส่งฟอร์ม (💥 ใช้ google.script.run แทน fetch/POST เพื่อแก้ปัญหา Network Error)
+                // 3. Form Submission Handler (using google.script.run for GAS)
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
@@ -422,7 +425,7 @@
                     
                     const data = Object.fromEntries(formData.entries());
 
-                    // 💥 โครงสร้างข้อมูลที่ส่งไปยัง Apps Script function processFormData(fullData)
+                    // โครงสร้างข้อมูลที่ส่งไปยัง Apps Script function processFormData(fullData)
                     const fullData = {
                         profile: userProfile,
                         data: data
@@ -437,7 +440,10 @@
                                 if (response.ok) {
                                     status.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
                                     // ปิดหน้าต่าง LIFF
-                                    setTimeout(() => { if (liff.closeWindow) liff.closeWindow(); }, 1500);
+                                    setTimeout(() => { 
+                                        if (liff.isInClient() && liff.closeWindow) liff.closeWindow(); 
+                                        else console.log("Form submission complete. LIFF not closing outside LINE client.");
+                                    }, 1500);
                                 } else {
                                     // Error ที่ถูกส่งมาจาก Apps Script (เช่น Sheet not found)
                                     status.textContent = "❌ ส่งไม่สำเร็จ: " + response.message;
@@ -452,7 +458,6 @@
                             })
                             // ส่งข้อมูลทั้งหมดไป
                             .processFormData(fullData); 
-                        // ** จบการใช้ google.script.run **
 
                     } catch (err) {
                         // ดักจับ Error ทั่วไปก่อนส่ง (ไม่น่าจะเกิดขึ้นเมื่อใช้ google.script.run)
