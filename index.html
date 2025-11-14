@@ -251,13 +251,16 @@
         </div>
         
         <div id="history-view" class="hidden">
-            <h2 style="color: #ff9800;">ข้อมูลประกาศงานล่าสุด 📄</h2>
-            <p id="history-message" style="font-size: 0.9em;">**คุณเคยส่งฟอร์มไปแล้ว!** ข้อมูลด้านล่างคือรายการล่าสุดที่บันทึกไว้ในระบบ หากต้องการส่งประกาศงานใหม่ (ซึ่งจะถูกบันทึกเป็นรายการใหม่) กรุณากดปุ่ม **"ส่งประกาศงานใหม่"**</p>
+            <h2 style="color: #00b900;">ประวัติส่วนตัวการประกาศงาน 📄</h2>
+            <p id="history-message" style="font-size: 0.9em;">
+                ✅ **คุณได้ส่งฟอร์มประกาศงานเรียบร้อยแล้ว!** นี่คือข้อมูลล่าสุดที่บันทึกไว้ในระบบ
+                <span style="font-weight: bold; color: #d9534f;">คุณไม่สามารถส่งฟอร์มซ้ำได้อีก</span> ขอบคุณที่ใช้บริการค่ะ
+            </p>
             
             <div id="latest-submission-card" class="history-card">
                 </div>
 
-            <button id="editBtn" class="history-action-btn">ส่งประกาศงานใหม่</button>
+            <button id="closeWindowBtn" class="history-action-btn" style="background-color: #5bc0de;">ปิดหน้าต่าง</button>
         </div>
     </div>
 
@@ -303,7 +306,7 @@
         // ใช้ LIFF ID ของคุณ
         const LIFF_ID = "2008394776-k9v7m3Wg"; 
         // Google Apps Script Web App URL ที่ deploy ใหม่
-        const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1L1MmcuRLXtDN58Qcqo8pKj8tYmE5q0DEfv0NNAtkVlLDVfkkGrDHLKD5Iu2ZoIZYZA/exec";
+        const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyoq8wacEW1T3eQJB6vgYkuj3OlO6YtIWKA3HrwAH2X5UV6hOrhXKUb5cIBxm-RlX_W/exec";
         // --- End CONFIG --- 
 
         const $ = id => document.getElementById(id);
@@ -333,6 +336,7 @@
         const wageTypeSelect = $("wage_type");
         const lumpSumDaysGroup = $("lump_sum_days_group");
         const lumpSumDaysInput = $("lump_sum_days");
+        const closeWindowBtn = $("closeWindowBtn"); // ปุ่มปิดหน้าต่างใหม่
 
         // Views
         const formView = $("form-view");
@@ -493,13 +497,15 @@
             }
         });
 
-        // 3. History View Action Button
-        $("editBtn").addEventListener('click', () => {
-            // สลับกลับไปหน้าฟอร์ม
-            showView('form');
+        // 3. History View Action Button (ใช้สำหรับปิดหน้าต่างเท่านั้น)
+        closeWindowBtn.addEventListener('click', () => {
+            // ใช้ฟังก์ชัน LIFF เพื่อปิดหน้าต่างเมื่อผู้ใช้กด
+            if (liff.closeWindow) {
+                liff.closeWindow();
+            }
         });
 
-        // 4. Form Submission Handler (เหมือนเดิม)
+        // 4. Form Submission Handler (ปรับปรุงส่วนสำเร็จ)
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -565,34 +571,23 @@
 
                 // การจัดการ Response เมื่อใช้ mode: 'no-cors'
                 if (res.type === 'opaque') {
-                    statusDiv.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ (ระบบจะปิดหน้าจออัตโนมัติ)";
+                    
+                    // --- START OF MODIFIED LOGIC ---
+                    statusDiv.textContent = "✅ ส่งสำเร็จ! กำลังแสดงประวัติล่าสุด...";
                     submitBtn.textContent = "ส่งสำเร็จ";
-                    // หลังจากส่งสำเร็จ ให้แสดงหน้าประวัติทันที (ถ้าต้องการ) หรือปิดหน้าจอ
-                    setTimeout(() => { 
-                         if (liff.closeWindow) liff.closeWindow(); 
-                     }, 1500);
+                    
+                    // 1. ตรวจสอบประวัติอีกครั้งเพื่อดึงข้อมูลที่เพิ่งส่งไป
+                    //    และแสดงผลใน History Card
+                    await checkSubmissionHistory(userProfile.userId); 
+                    
+                    // 2. สลับไปหน้าประวัติ
+                    showView('history'); 
+                    // --- END OF MODIFIED LOGIC ---
+                    
                     return;
                 }
 
-                // การจัดการ Response ปกติ (ถ้าไม่ได้ใช้ no-cors)
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    console.error("HTTP Error:", res.status, errorText);
-                    throw new Error(`Server Error (${res.status})`);
-                }
-
-                const json = await res.json();
-                console.log("Response:", json);
-
-                if (json.ok) {
-                    statusDiv.textContent = "✅ ส่งสำเร็จ! ขอบคุณค่ะ";
-                    submitBtn.textContent = "ส่งสำเร็จ";
-                    setTimeout(() => { 
-                         if (liff.closeWindow) liff.closeWindow(); 
-                     }, 1500);
-                } else {
-                    throw new Error(json.error || "Unknown error");
-                }
+                // ... (ส่วนจัดการ Response อื่นๆ ที่ไม่น่าจะทำงานเมื่อใช้ no-cors) ...
 
             } catch (err) {
                 console.error("Error:", err);
