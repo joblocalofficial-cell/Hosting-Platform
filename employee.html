@@ -360,11 +360,18 @@
         showStatus("กำลังส่งข้อมูล...", "info");
 
         try {
-            const res = await fetch(GAS_ENDPOINT, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+    console.log("=== DEBUG ===");
+    console.log("GAS_ENDPOINT:", GAS_ENDPOINT);
+    console.log("Payload:", payload);
+    
+    const res = await fetch(GAS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    
+    console.log("Response status:", res.status);
+    console.log("Response OK:", res.ok);
 
             const json = await res.json();
             
