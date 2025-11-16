@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobLocal - ฟอร์มผู้หางาน</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Sukhumvit Set', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); min-height: 100vh; }
+        .container { background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 24px; }
+        
+        header { display: flex; gap: 15px; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0; }
+        #avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #17a2b8; background: #e1f5fe; }
+        #hello { font-size: 1.2em; font-weight: 700; color: #17a2b8; margin-bottom: 4px; }
+        #uid { font-size: 0.75em; color: #999; }
+        
+        h2 { font-size: 1.4em; color: #333; margin: 24px 0 16px; border-left: 5px solid #17a2b8; padding-left: 12px; font-weight: 700; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.9em; }
+        
+        input, select, textarea { width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; transition: all 0.3s; background: #fafafa; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { border-color: #17a2b8; outline: none; box-shadow: 0 0 0 4px rgba(23,162,184,0.1); background: #fff; }
+        
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+        
+        .pdpa-box { background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%); border: 2px solid #17a2b8; padding: 16px; border-radius: 12px; margin-bottom: 24px; }
+        .pdpa-box label { font-weight: 500; display: flex; align-items: flex-start; margin: 0; cursor: pointer; }
+        .pdpa-box input[type="checkbox"] { width: 20px; height: 20px; margin-right: 12px; margin-top: 2px; cursor: pointer; }
+        
+        button { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: #fff; padding: 16px 24px; border: none; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(23,162,184,0.3); }
+        button:hover:enabled { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(23,162,184,0.4); }
+        button:active:enabled { transform: translateY(0); }
+        button:disabled { background: linear-gradient(135deg, #8ad3db 0%, #70c7d0 100%); cursor: not-allowed; box-shadow: none; }
+        
+        .status { margin-top: 12px; font-size: 0.9em; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        
+        .hidden { display: none !important; }
+        .hint { font-size: 0.8em; color: #666; margin-top: 6px; }
+        
+        .success-box { text-align: center; padding: 40px 20px; }
+        .success-box h2 { border: none; text-align: center; margin: 0 0 20px; }
+        .success-icon { font-size: 4em; margin-bottom: 20px; }
+        
+        .btn-secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); box-shadow: 0 4px 12px rgba(108,117,125,0.3); }
+        .btn-secondary:hover:enabled { box-shadow: 0 6px 20px rgba(108,117,125,0.4); }
+        
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #17a2b8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e1f5fe' width='64' height='64'/%3E%3C/svg%3E" alt="Avatar">
+            <div style="flex: 1;">
+                <div id="hello">กำลังเชื่อมต่อ LINE...</div>
+                <small id="uid">กำลังโหลด...</small>
+            </div>
+        </header>
+
+        <div id="form-view">
+            <form id="mainForm">
+                <div class="pdpa-box">
+                    <label>
+                        <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
+                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล</span>
+                    </label>
+                </div>
+
+                <h2>👤 ข้อมูลส่วนตัว</h2>
+                
+                <div class="form-group">
+                    <label for="full_name">ชื่อ-นามสกุล *</label>
+                    <input id="full_name" name="full_name" placeholder="ระบุชื่อเต็มของคุณ" required>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label for="age">อายุ *</label>
+                        <input id="age" name="age" type="number" min="15" max="99" placeholder="25" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">เบอร์โทรศัพท์ *</label>
+                        <input id="phone" name="phone" type="tel" pattern="[0-9]{10}" placeholder="0812345678" required>
+                        <div class="hint">กรอก 10 หลัก</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">อีเมล</label>
+                    <input id="email" name="email" type="email" placeholder="example@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="education">ระดับการศึกษา *</label>
+                    <select id="education" name="education" required>
+                        <option value="">--- เลือกระดับการศึกษา ---</option>
+                        <option value="ต่ำกว่า ม.6">ต่ำกว่า ม.6</option>
+                        <option value="ม.6 / ปวช.">ม.6 / ปวช.</option>
+                        <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                        <option value="ปริญญาตรี">ปริญญาตรี</option>
+                        <option value="สูงกว่าปริญญาตรี">สูงกว่าปริญญาตรี</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="district">อำเภอที่อยู่ (ปทุมธานี) *</label>
+                    <select id="district" name="district" required>
+                        <option value="">--- เลือกอำเภอ ---</option>
+                        <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
+                        <option value="คลองหลวง">คลองหลวง</option>
+                        <option value="ธัญบุรี">ธัญบุรี</option>
+                        <option value="หนองเสือ">หนองเสือ</option>
+                        <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
+                        <option value="ลำลูกกา">ลำลูกกา</option>
+                        <option value="สามโคก">สามโคก</option>
+                    </select>
+                </div>
+
+                <h2>💼 ประสบการณ์และทักษะ</h2>
+
+                <div class="form-group">
+                    <label for="work_experience">ประสบการณ์ทำงาน *</label>
+                    <select id="work_experience" name="work_experience" required>
+                        <option value="">--- เลือก ---</option>
+                        <option value="ไม่มีประสบการณ์">ไม่มีประสบการณ์</option>
+                        <option value="น้อยกว่า 1 ปี">น้อยกว่า 1 ปี</option>
+                        <option value="1-3 ปี">1-3 ปี</option>
+                        <option value="3-5 ปี">3-5 ปี</option>
+                        <option value="มากกว่า 5 ปี">มากกว่า 5 ปี</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="skills">ทักษะที่คุณถนัด *</label>
+                    <textarea id="skills" name="skills" rows="3" placeholder="เช่น การบริการลูกค้า, ขับรถ, ทำอาหาร, ซ่อมบำรุง, ใช้คอมพิวเตอร์" required></textarea>
+                    <div class="hint">อธิบายทักษะหรือความสามารถของคุณ</div>
+                </div>
+
+                <h2>🎯 งานที่ต้องการ</h2>
+
+                <div class="form-group">
+                    <label for="desired_job">งานที่คุณอยากทำ *</label>
+                    <select id="desired_job" name="desired_job" required>
+                        <option value="">--- เลือกประเภทงาน ---</option>
+                        <option value="งานบริการ">งานบริการ (เสิร์ฟ/พนักงานต้อนรับ)</option>
+                        <option value="งานขาย">งานขาย</option>
+                        <option value="งานแม่บ้าน">งานแม่บ้าน/ทำความสะอาด</option>
+                        <option value="งานช่าง">งานช่าง/ซ่อมบำรุง</option>
+                        <option value="งานขับรถ">งานขับรถ/ส่งของ</option>
+                        <option value="งานครัว">งานครัว/ทำอาหาร</option>
+                        <option value="งานทั่วไป">งานทั่วไป/รายวัน</option>
+                        <option value="งานออฟฟิศ">งานออฟฟิศ/ธุรการ</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="availability">ความพร้อมในการทำงาน *</label>
+                    <select id="availability" name="availability" required>
+                        <option value="">--- เลือก ---</option>
+                        <option value="เริ่มงานได้ทันที">เริ่มงานได้ทันที</option>
+                        <option value="ภายใน 1 สัปดาห์">ภายใน 1 สัปดาห์</option>
+                        <option value="ภายใน 1 เดือน">ภายใน 1 เดือน</option>
+                        <option value="ตามตกลง">ตามตกลง</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="work_type">รูปแบบงานที่ต้องการ *</label>
+                    <select id="work_type" name="work_type" required>
+                        <option value="">--- เลือก ---</option>
+                        <option value="งานประจำ">งานประจำ (Full-time)</option>
+                        <option value="งานพาร์ทไทม์">งานพาร์ทไทม์ (Part-time)</option>
+                        <option value="งานรายวัน">งานรายวัน</option>
+                        <option value="งานชั่วคราว">งานชั่วคราว/โปรเจค</option>
+                        <option value="งานฟรีแลนซ์">งานฟรีแลนซ์</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description_note">คำอธิบายเพิ่มเติม (ถ้ามี)</label>
+                    <textarea id="description_note" name="description_note" rows="3" placeholder="เช่น เป้าหมายในการทำงาน, จุดเด่นของคุณ, สิ่งที่คุณสนใจ"></textarea>
+                </div>
+
+                <button id="submitBtn" type="submit" disabled>
+                    <div class="loader"></div>
+                </button>
+                <div id="status" class="status hidden"></div>
+            </form>
+        </div>
+        
+        <div id="success-view" class="hidden success-box">
+            <div class="success-icon">✅</div>
+            <h2 style="color: #17a2b8;">ส่งข้อมูลสำเร็จ!</h2>
+            <p style="margin: 24px 0; line-height: 1.8; color: #666; font-size: 1.05em;">
+                ขอบคุณที่ลงทะเบียนกับ <strong style="color: #17a2b8;">JobLocal Pathum Thani</strong><br>
+                เราจะแจ้งเตือนคุณเมื่อมีงานที่เหมาะสม 🎯
+            </p>
+            <button id="closeBtn" class="btn-secondary">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <script>
+    // ⚠️ สำคัญ: ให้แก้ไข URL นี้หลังจาก Deploy Google Apps Script
+    const GAS_ENDPOINT = "YOUR_DEPLOYED_GAS_URL_HERE";
+    const LIFF_ID = "2008394776-k9v7m3Wg";
+
+    const $ = id => document.getElementById(id);
+    let userProfile, userIdToken, liffReady = false;
+
+    async function init() {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) { liff.login(); return; }
+            
+            userProfile = await liff.getProfile();
+            userIdToken = liff.getIDToken();
+            liffReady = true;
+
+            $("hello").textContent = `สวัสดี, ${userProfile.displayName} 👋`;
+            $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
+            if (userProfile.pictureUrl) $("avatar").src = userProfile.pictureUrl;
+            
+            $("submitBtn").disabled = false;
+            $("submitBtn").textContent = '✅ ส่งข้อมูล';
+            showStatus("กรุณากรอกข้อมูลเพื่อหางาน", "info");
+        } catch (e) {
+            console.error(e);
+            $("hello").textContent = "❌ เกิดข้อผิดพลาด";
+            $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
+        }
+    }
+
+    function showStatus(msg, type = 'info') {
+        const s = $("status");
+        s.textContent = msg;
+        s.className = `status ${type}`;
+        s.classList.remove('hidden');
+    }
+
+    $("mainForm").addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
+
+        const payload = {
+            type: "jobseeker",
+            profile: {
+                userId: userProfile.userId,
+                displayName: userProfile.displayName,
+                pictureUrl: userProfile.pictureUrl || ""
+            },
+            data: {
+                pdpa_consent: $("consent_pdpa").checked ? "on" : "off",
+                full_name: $("full_name").value,
+                age: $("age").value,
+                phone: $("phone").value,
+                email: $("email").value,
+                education: $("education").value,
+                district: $("district").value,
+                work_experience: $("work_experience").value,
+                skills: $("skills").value,
+                desired_job: $("desired_job").value,
+                availability: $("availability").value,
+                work_type: $("work_type").value,
+                description_note: $("description_note").value
+            }
+        };
+
+        $("submitBtn").disabled = true;
+        $("submitBtn").innerHTML = '<div class="loader"></div>';
+        showStatus("กำลังส่งข้อมูล...", "info");
+
+        try {
+            const res = await fetch(GAS_ENDPOINT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const json = await res.json();
+            
+            if (json.ok) {
+                $("form-view").classList.add('hidden');
+                $("success-view").classList.remove('hidden');
+            } else {
+                throw new Error(json.error || "เกิดข้อผิดพลาด");
+            }
+        } catch (e) {
+            showStatus(`❌ ส่งไม่สำเร็จ: ${e.message}`, "error");
+            $("submitBtn").disabled = false;
+            $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+        }
+    });
+
+    $("closeBtn")?.addEventListener('click', () => {
+        if (liff.closeWindow) liff.closeWindow();
+        else alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
+    });
+
+    init();
+    </script>
+</body>
+</html>
