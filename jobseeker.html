@@ -215,12 +215,22 @@
 
     async function init() {
         try {
+            console.log("🔄 Initializing LIFF...");
             await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) { liff.login(); return; }
+            
+            if (!liff.isLoggedIn()) { 
+                console.log("⚠️ Not logged in, redirecting...");
+                liff.login(); 
+                return; 
+            }
             
             userProfile = await liff.getProfile();
             userIdToken = liff.getIDToken();
             liffReady = true;
+
+            console.log("✅ LIFF Ready!");
+            console.log("User:", userProfile.displayName);
+            console.log("User ID:", userProfile.userId);
 
             $("hello").textContent = `สวัสดี, ${userProfile.displayName} 👋`;
             $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
@@ -230,7 +240,9 @@
             $("submitBtn").textContent = '✅ ส่งข้อมูล';
             showStatus("กรุณากรอกข้อมูลเพื่อหางาน", "info");
         } catch (e) {
-            console.error(e);
+            console.error("❌ LIFF Init Error:", e);
+            console.error("Error message:", e.message);
+            console.error("Error stack:", e.stack);
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
@@ -245,7 +257,15 @@
 
     $("mainForm").addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
+        
+        console.log("=== FORM SUBMIT START ===");
+        console.log("LIFF Ready:", liffReady);
+        
+        if (!liffReady) { 
+            console.log("⚠️ LIFF not ready");
+            showStatus("กรุณารอสักครู่...", "info"); 
+            return; 
+        }
 
         const payload = {
             type: "jobseeker",
@@ -276,21 +296,36 @@
         showStatus("กำลังส่งข้อมูล...", "info");
 
         try {
+            console.log("=== DEBUG INFO ===");
+            console.log("GAS_ENDPOINT:", GAS_ENDPOINT);
+            console.log("Payload:", JSON.stringify(payload, null, 2));
+            
+            console.log("📤 Sending request...");
             const res = await fetch(GAS_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
+            
+            console.log("📥 Response received");
+            console.log("Status:", res.status);
+            console.log("OK:", res.ok);
 
             const json = await res.json();
+            console.log("Response data:", json);
             
             if (json.ok) {
+                console.log("✅ Success!");
                 $("form-view").classList.add('hidden');
                 $("success-view").classList.remove('hidden');
             } else {
                 throw new Error(json.error || "เกิดข้อผิดพลาด");
             }
         } catch (e) {
+            console.error("❌ Error:", e);
+            console.error("Error message:", e.message);
+            console.error("Error stack:", e.stack);
+            
             showStatus(`❌ ส่งไม่สำเร็จ: ${e.message}`, "error");
             $("submitBtn").disabled = false;
             $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
@@ -302,6 +337,7 @@
         else alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
     });
 
+    console.log("📱 Script loaded, starting init...");
     init();
     </script>
 </body>
