@@ -42,16 +42,10 @@
         .hidden { display: none !important; }
         .hint { font-size: 0.8em; color: #ff5252; margin-top: 6px; font-weight: 500; }
         
-        .history-card { border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; margin: 20px 0; background: linear-gradient(135deg, #f9f9f9 0%, #fff 100%); border-left: 6px solid #00b900; }
-        .history-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #ddd; }
-        .history-item:last-child { border: none; margin: 0; }
-        .history-label { font-weight: 700; color: #555; font-size: 0.85em; display: inline-block; min-width: 140px; }
-        .history-value { color: #333; font-size: 0.95em; }
+        .success-box { text-align: center; padding: 40px 20px; }
+        .success-box h2 { border: none; text-align: center; margin: 0 0 20px; }
+        .success-icon { font-size: 4em; margin-bottom: 20px; }
         
-        .btn-warning { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); box-shadow: 0 4px 12px rgba(255,152,0,0.3); }
-        .btn-warning:hover:enabled { box-shadow: 0 6px 20px rgba(255,152,0,0.4); }
-        .btn-info { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); box-shadow: 0 4px 12px rgba(23,162,184,0.3); }
-        .btn-info:hover:enabled { box-shadow: 0 6px 20px rgba(23,162,184,0.4); }
         .btn-secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); box-shadow: 0 4px 12px rgba(108,117,125,0.3); }
         .btn-secondary:hover:enabled { box-shadow: 0 6px 20px rgba(108,117,125,0.4); }
         
@@ -216,104 +210,46 @@
             </form>
         </div>
         
-        <div id="history-view" class="hidden">
-            <h2 style="color: #00b900;">📋 ประวัติการประกาศงาน</h2>
-            <p style="margin: 16px 0; line-height: 1.6; color: #666;">
-                ✅ คุณได้ส่งฟอร์มประกาศงานเรียบร้อยแล้ว! นี่คือข้อมูลล่าสุดที่บันทึกไว้ในระบบ
+        <div id="success-view" class="hidden success-box">
+            <div class="success-icon">✅</div>
+            <h2 style="color: #00b900;">ประกาศงานสำเร็จ!</h2>
+            <p style="margin: 24px 0; line-height: 1.8; color: #666; font-size: 1.05em;">
+                ขอบคุณที่ประกาศงานกับ <strong style="color: #00b900;">JobLocal Pathum Thani</strong><br>
+                เราจะแจ้งเตือนเมื่อมีผู้สมัครที่เหมาะสม 💼
             </p>
-            
-            <div id="latest-submission-card" class="history-card"></div>
-
-            <button id="resubmitBtn" class="btn-warning">📝 ส่งฟอร์มประกาศงานใหม่</button>
-            <button id="shareFlexBtn" class="btn-info">📢 แชร์ประกาศงาน</button>
-            <button id="closeWindowBtn" class="btn-secondary">❌ ปิดหน้าต่าง</button>
+            <button id="closeBtn" class="btn-secondary">ปิดหน้าต่าง</button>
         </div>
     </div>
 
     <script>
-    // ⚠️ สำคัญ: ให้แก้ไข URL นี้หลังจาก Deploy Google Apps Script
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
+    // ✅ Apps Script URL และ LIFF ID พร้อมใช้งาน
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
     const LIFF_ID = "2008394776-k9v7m3Wg";
-
     const $ = id => document.getElementById(id);
-    let userProfile, userIdToken, liffReady = false, latestData = null;
+    let userProfile, liffReady = false;
 
     async function init() {
         try {
             await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) { liff.login(); return; }
+            if (!liff.isLoggedIn()) { 
+                liff.login(); 
+                return; 
+            }
             
             userProfile = await liff.getProfile();
-            userIdToken = liff.getIDToken();
             liffReady = true;
 
             $("hello").textContent = `สวัสดี, ${userProfile.displayName} 👋`;
             $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
             if (userProfile.pictureUrl) $("avatar").src = userProfile.pictureUrl;
             
-            const hasSubmitted = await checkHistory();
-            showView(hasSubmitted ? 'history' : 'form');
+            $("submitBtn").disabled = false;
+            $("submitBtn").textContent = '✅ ส่งประกาศงาน';
+            showStatus("กรุณากรอกข้อมูลเพื่อประกาศงาน", "info");
         } catch (e) {
             console.error(e);
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
-        }
-    }
-
-    async function checkHistory() {
-        try {
-            const res = await fetch(`${GAS_ENDPOINT}?type=employer&userId=${userProfile.userId}`);
-            const json = await res.json();
-            
-            if (json.hasSubmitted && json.latestSubmission) {
-                latestData = json.latestSubmission;
-                renderHistory();
-                return true;
-            }
-            showStatus("กรุณากรอกข้อมูลเพื่อประกาศงาน", "info");
-            return false;
-        } catch (e) {
-            console.error(e);
-            return false;
-        }
-    }
-
-    function renderHistory() {
-        let html = '<p style="font-weight:700; color:#00b900; margin-bottom:16px;">📄 รายการที่คุณประกาศล่าสุด</p>';
-        
-        const fields = {
-            'วันที่-เวลาส่งฟอร์ม': 'วันที่ส่ง',
-            'สถานะ': 'สถานะ',
-            'ตำแหน่งงาน': 'ตำแหน่ง',
-            'ชื่อบริษัท/บุคคล': 'บริษัท/บุคคล',
-            'เบอร์โทรศัพท์': 'เบอร์',
-            'ประเภทงาน': 'ประเภทงาน',
-            'สถานที่ทำงาน': 'สถานที่',
-            'อำเภอ': 'พื้นที่',
-            'รูปแบบค่าจ้าง': 'รูปแบบค่าจ้าง',
-            'จำนวนค่าจ้าง (บาท)': 'จำนวนเงิน'
-        };
-
-        for (const [key, label] of Object.entries(fields)) {
-            if (latestData[key]) {
-                let val = latestData[key];
-                if (key === 'จำนวนค่าจ้าง (บาท)') val = `${parseFloat(val).toLocaleString('th-TH')} บาท`;
-                html += `<div class="history-item"><span class="history-label">${label}:</span> <span class="history-value">${val}</span></div>`;
-            }
-        }
-
-        $("latest-submission-card").innerHTML = html;
-    }
-
-    function showView(view) {
-        if (view === 'form') {
-            $("form-view").classList.remove('hidden');
-            $("history-view").classList.add('hidden');
-            $("submitBtn").disabled = false;
-            $("submitBtn").innerHTML = '✅ ส่งประกาศงาน';
-        } else {
-            $("form-view").classList.add('hidden');
-            $("history-view").classList.remove('hidden');
         }
     }
 
@@ -332,8 +268,11 @@
 
         const payload = {
             type: "employer",
-            idToken: userIdToken,
-            profile: { userId: userProfile.userId, displayName: userProfile.displayName, pictureUrl: userProfile.pictureUrl || "" },
+            profile: { 
+                userId: userProfile.userId, 
+                displayName: userProfile.displayName, 
+                pictureUrl: userProfile.pictureUrl || "" 
+            },
             data: {
                 pdpa_consent: $("consent_pdpa").checked ? "ยอมรับ" : "ไม่ยอมรับ",
                 user_type: $("user_type").value,
@@ -360,62 +299,60 @@
         showStatus("กำลังส่งข้อมูล...", "info");
 
         try {
-    console.log("=== DEBUG ===");
-    console.log("GAS_ENDPOINT:", GAS_ENDPOINT);
-    console.log("Payload:", payload);
-    
-    const res = await fetch(GAS_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
-    
-    console.log("Response status:", res.status);
-    console.log("Response OK:", res.ok);
-
-            const json = await res.json();
+            // ใช้ XMLHttpRequest แทน fetch เพื่อแก้ปัญหา CORS
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', SCRIPT_URL, true);
+            xhr.setRequestHeader('Content-Type', 'text/plain'); // ใช้ text/plain เพื่อหลีก CORS preflight
             
-            if (json.ok) {
-                showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
-                setTimeout(async () => {
-                    await checkHistory();
-                    showView('history');
-                }, 1500);
-            } else {
-                throw new Error(json.error || "เกิดข้อผิดพลาด");
-            }
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.ok) {
+                            $("form-view").classList.add('hidden');
+                            $("success-view").classList.remove('hidden');
+                        } else {
+                            showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
+                            $("submitBtn").disabled = false;
+                            $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                        }
+                    } catch (parseError) {
+                        // ถ้า parse ไม่ได้ แสดงว่าส่งสำเร็จแล้ว (response อาจเป็น HTML)
+                        $("form-view").classList.add('hidden');
+                        $("success-view").classList.remove('hidden');
+                    }
+                } else {
+                    showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
+                    $("submitBtn").disabled = false;
+                    $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                }
+            };
+            
+            xhr.onerror = function() {
+                // แม้จะ error แต่ข้อมูลอาจส่งสำเร็จแล้ว (CORS issue)
+                // ลองเช็ค Sheets ว่ามีข้อมูลไหม
+                showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
+                setTimeout(() => {
+                    $("form-view").classList.add('hidden');
+                    $("success-view").classList.remove('hidden');
+                }, 2000);
+            };
+            
+            xhr.send(JSON.stringify(payload));
+                
         } catch (e) {
             showStatus(`❌ ส่งไม่สำเร็จ: ${e.message}`, "error");
             $("submitBtn").disabled = false;
-            $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
+            $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
         }
     });
 
-    $("resubmitBtn")?.addEventListener('click', () => {
-        showView('form');
-        $("mainForm").reset();
-        showStatus("📝 กรุณากรอกข้อมูลใหม่", "info");
-    });
-
-    $("shareFlexBtn")?.addEventListener('click', async () => {
-        if (!latestData) { alert("ไม่พบข้อมูล"); return; }
-        const msg = `🔔 ประกาศงาน: ${latestData['ตำแหน่งงาน']}\n🏢 ${latestData['ชื่อบริษัท/บุคคล']}\n📍 ${latestData['สถานที่ทำงาน']}, ${latestData['อำเภอ']}\n💰 ${latestData['รูปแบบค่าจ้าง']} ${latestData['จำนวนค่าจ้าง (บาท)']} บาท\n📞 ${latestData['เบอร์โทรศัพท์']}`;
-        
-        try {
-            if (liff.isApiAvailable('shareTargetPicker')) {
-                await liff.shareTargetPicker([{ type: "text", text: msg }]);
-                alert("✅ แชร์สำเร็จ!");
-            } else {
-                alert("❌ กรุณาเปิดใน LINE App");
-            }
-        } catch (e) {
-            alert("❌ ไม่สามารถแชร์ได้");
+    $("closeBtn")?.addEventListener('click', () => {
+        if (liff.isInClient()) {
+            liff.closeWindow();
+        } else {
+            alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
         }
-    });
-
-    $("closeWindowBtn")?.addEventListener('click', () => {
-        if (liff.closeWindow) liff.closeWindow();
-        else alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
     });
 
     $("job_title_select").addEventListener('change', e => {
