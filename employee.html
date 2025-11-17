@@ -258,25 +258,55 @@
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
-    }
+    }    
+        // ลบ try-catch block เก่าออก แล้วใช้โค้ดนี้แทน
+const xhr = new XMLHttpRequest();
+xhr.open('POST', GAS_ENDPOINT, true);
+xhr.setRequestHeader('Content-Type', 'application/json');
 
-    async function checkHistory() {
+xhr.onload = function() {
+    console.log("📥 Response received");
+    console.log("Status:", xhr.status);
+    
+    if (xhr.status === 200) {
         try {
-            const res = await fetch(`${GAS_ENDPOINT}?type=employer&userId=${userProfile.userId}`);
-            const json = await res.json();
+            const json = JSON.parse(xhr.responseText);
+            console.log("Response data:", json);
             
-            if (json.hasSubmitted && json.latestSubmission) {
-                latestData = json.latestSubmission;
-                renderHistory();
-                return true;
+            if (json.ok) {
+                console.log("✅ Success!");
+                showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
+                setTimeout(async () => {
+                    await checkHistory();
+                    showView('history');
+                }, 1500);
+            } else {
+                throw new Error(json.error || "เกิดข้อผิดพลาด");
             }
-            showStatus("กรุณากรอกข้อมูลเพื่อประกาศงาน", "info");
-            return false;
-        } catch (e) {
-            console.error(e);
-            return false;
+        } catch (parseError) {
+            console.error("Parse error:", parseError);
+            showStatus(`❌ เกิดข้อผิดพลาด: ${parseError.message}`, "error");
+            $("submitBtn").disabled = false;
+            $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
         }
+    } else {
+        showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
+        $("submitBtn").disabled = false;
+        $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
     }
+};
+
+xhr.onerror = function() {
+    console.error("❌ Network Error");
+    showStatus("❌ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่", "error");
+    $("submitBtn").disabled = false;
+    $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
+};
+
+console.log("📤 Sending request...");
+xhr.send(JSON.stringify(payload));
+
+
 
     function renderHistory() {
         let html = '<p style="font-weight:700; color:#00b900; margin-bottom:16px;">📄 รายการที่คุณประกาศล่าสุด</p>';
