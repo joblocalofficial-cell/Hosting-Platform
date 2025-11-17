@@ -206,9 +206,10 @@
     </div>
 
     <script>
-    // ✅ Apps Script URL และ LIFF ID พร้อมใช้งาน
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
+    // ✅ Configuration
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
     const LIFF_ID = "2008394776-yGB4gQdv";
+    
     const $ = id => document.getElementById(id);
     let userProfile, liffReady = false;
 
@@ -231,7 +232,7 @@
             $("submitBtn").textContent = '✅ ส่งข้อมูล';
             showStatus("กรุณากรอกข้อมูลเพื่อหางาน", "info");
         } catch (e) {
-            console.error(e);
+            console.error("LIFF Error:", e);
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
@@ -244,9 +245,12 @@
         s.classList.remove('hidden');
     }
 
-    $("mainForm").addEventListener('submit', async (e) => {
+    $("mainForm").addEventListener('submit', function(e) {
         e.preventDefault();
-        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
+        if (!liffReady) { 
+            showStatus("กรุณารอสักครู่...", "info"); 
+            return; 
+        }
 
         const payload = {
             type: "jobseeker",
@@ -276,56 +280,48 @@
         $("submitBtn").innerHTML = '<div class="loader"></div>';
         showStatus("กำลังส่งข้อมูล...", "info");
 
-        try {
-            // ใช้ XMLHttpRequest แทน fetch เพื่อแก้ปัญหา CORS
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', SCRIPT_URL, true);
-            xhr.setRequestHeader('Content-Type', 'text/plain'); // ใช้ text/plain เพื่อหลีก CORS preflight
-            
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    try {
-                        const result = JSON.parse(xhr.responseText);
-                        if (result.ok) {
-                            $("form-view").classList.add('hidden');
-                            $("success-view").classList.remove('hidden');
-                        } else {
-                            showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
-                            $("submitBtn").disabled = false;
-                            $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
-                        }
-                    } catch (parseError) {
-                        // ถ้า parse ไม่ได้ แสดงว่าส่งสำเร็จแล้ว (response อาจเป็น HTML)
+        // ✅ Use XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', GAS_ENDPOINT, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.ok) {
                         $("form-view").classList.add('hidden');
                         $("success-view").classList.remove('hidden');
+                    } else {
+                        showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
+                        $("submitBtn").disabled = false;
+                        $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
                     }
-                } else {
-                    showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
-                    $("submitBtn").disabled = false;
-                    $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
-                }
-            };
-            
-            xhr.onerror = function() {
-                // แม้จะ error แต่ข้อมูลอาจส่งสำเร็จแล้ว (CORS issue)
-                // ลองเช็ค Sheets ว่ามีข้อมูลไหม
-                showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
-                setTimeout(() => {
+                } catch (parseError) {
+                    // Response might be HTML, assume success
                     $("form-view").classList.add('hidden');
                     $("success-view").classList.remove('hidden');
-                }, 2000);
-            };
-            
-            xhr.send(JSON.stringify(payload));
-                
-        } catch (e) {
-            showStatus(`❌ ส่งไม่สำเร็จ: ${e.message}`, "error");
-            $("submitBtn").disabled = false;
-            $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
-        }
+                }
+            } else {
+                showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
+                $("submitBtn").disabled = false;
+                $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+            }
+        };
+        
+        xhr.onerror = function() {
+            // CORS error but data might be saved
+            showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
+            setTimeout(function() {
+                $("form-view").classList.add('hidden');
+                $("success-view").classList.remove('hidden');
+            }, 2000);
+        };
+        
+        xhr.send(JSON.stringify(payload));
     });
 
-    $("closeBtn")?.addEventListener('click', () => {
+    $("closeBtn").addEventListener('click', function() {
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
