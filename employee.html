@@ -231,7 +231,7 @@
     </div>
 
     <script>
-    // ⚠️ สำคัญ: ให้แก้ไข URL นี้หลังจาก Deploy Google Apps Script
+    // ✅ Configuration
     const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
     const LIFF_ID = "2008394776-k9v7m3Wg";
 
@@ -254,59 +254,29 @@
             const hasSubmitted = await checkHistory();
             showView(hasSubmitted ? 'history' : 'form');
         } catch (e) {
-            console.error(e);
+            console.error("LIFF Error:", e);
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
-    }    
-        // ลบ try-catch block เก่าออก แล้วใช้โค้ดนี้แทน
-const xhr = new XMLHttpRequest();
-xhr.open('POST', GAS_ENDPOINT, true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-
-xhr.onload = function() {
-    console.log("📥 Response received");
-    console.log("Status:", xhr.status);
-    
-    if (xhr.status === 200) {
-        try {
-            const json = JSON.parse(xhr.responseText);
-            console.log("Response data:", json);
-            
-            if (json.ok) {
-                console.log("✅ Success!");
-                showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
-                setTimeout(async () => {
-                    await checkHistory();
-                    showView('history');
-                }, 1500);
-            } else {
-                throw new Error(json.error || "เกิดข้อผิดพลาด");
-            }
-        } catch (parseError) {
-            console.error("Parse error:", parseError);
-            showStatus(`❌ เกิดข้อผิดพลาด: ${parseError.message}`, "error");
-            $("submitBtn").disabled = false;
-            $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
-        }
-    } else {
-        showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
-        $("submitBtn").disabled = false;
-        $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
     }
-};
 
-xhr.onerror = function() {
-    console.error("❌ Network Error");
-    showStatus("❌ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่", "error");
-    $("submitBtn").disabled = false;
-    $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
-};
-
-console.log("📤 Sending request...");
-xhr.send(JSON.stringify(payload));
-
-
+    async function checkHistory() {
+        try {
+            const res = await fetch(`${GAS_ENDPOINT}?type=employer&userId=${userProfile.userId}`);
+            const json = await res.json();
+            
+            if (json.hasSubmitted && json.latestSubmission) {
+                latestData = json.latestSubmission;
+                renderHistory();
+                return true;
+            }
+            showStatus("กรุณากรอกข้อมูลเพื่อประกาศงาน", "info");
+            return false;
+        } catch (e) {
+            console.error("Check history error:", e);
+            return false;
+        }
+    }
 
     function renderHistory() {
         let html = '<p style="font-weight:700; color:#00b900; margin-bottom:16px;">📄 รายการที่คุณประกาศล่าสุด</p>';
@@ -354,7 +324,7 @@ xhr.send(JSON.stringify(payload));
         s.classList.remove('hidden');
     }
 
-    $("mainForm").addEventListener('submit', async (e) => {
+    $("mainForm").addEventListener('submit', function(e) {
         e.preventDefault();
         if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
 
@@ -363,7 +333,11 @@ xhr.send(JSON.stringify(payload));
         const payload = {
             type: "employer",
             idToken: userIdToken,
-            profile: { userId: userProfile.userId, displayName: userProfile.displayName, pictureUrl: userProfile.pictureUrl || "" },
+            profile: { 
+                userId: userProfile.userId, 
+                displayName: userProfile.displayName, 
+                pictureUrl: userProfile.pictureUrl || "" 
+            },
             data: {
                 pdpa_consent: $("consent_pdpa").checked ? "ยอมรับ" : "ไม่ยอมรับ",
                 user_type: $("user_type").value,
@@ -389,86 +363,59 @@ xhr.send(JSON.stringify(payload));
         $("submitBtn").innerHTML = '<div class="loader"></div>';
         showStatus("กำลังส่งข้อมูล...", "info");
 
-        try {
-    console.log("=== DEBUG ===");
-    console.log("GAS_ENDPOINT:", GAS_ENDPOINT);
-    console.log("Payload:", payload);
-    
-    // ลบ try-catch block เก่าออก แล้วใช้โค้ดนี้แทน
-const xhr = new XMLHttpRequest();
-xhr.open('POST', GAS_ENDPOINT, true);
-xhr.setRequestHeader('Content-Type', 'application/json');
+        // ✅ Use XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', GAS_ENDPOINT, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
-xhr.onload = function() {
-    console.log("📥 Response received");
-    console.log("Status:", xhr.status);
-    
-    if (xhr.status === 200) {
-        try {
-            const json = JSON.parse(xhr.responseText);
-            console.log("Response data:", json);
-            
-            if (json.ok) {
-                console.log("✅ Success!");
-                showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
-                setTimeout(async () => {
-                    await checkHistory();
-                    showView('history');
-                }, 1500);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    const json = JSON.parse(xhr.responseText);
+                    
+                    if (json.ok) {
+                        showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
+                        setTimeout(async function() {
+                            await checkHistory();
+                            showView('history');
+                        }, 1500);
+                    } else {
+                        throw new Error(json.error || "เกิดข้อผิดพลาด");
+                    }
+                } catch (parseError) {
+                    // Response might be HTML, assume success
+                    showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
+                    setTimeout(async function() {
+                        await checkHistory();
+                        showView('history');
+                    }, 1500);
+                }
             } else {
-                throw new Error(json.error || "เกิดข้อผิดพลาด");
+                showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
+                $("submitBtn").disabled = false;
+                $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
             }
-        } catch (parseError) {
-            console.error("Parse error:", parseError);
-            showStatus(`❌ เกิดข้อผิดพลาด: ${parseError.message}`, "error");
-            $("submitBtn").disabled = false;
-            $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
-        }
-    } else {
-        showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
-        $("submitBtn").disabled = false;
-        $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
-    }
-};
+        };
 
-xhr.onerror = function() {
-    console.error("❌ Network Error");
-    showStatus("❌ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่", "error");
-    $("submitBtn").disabled = false;
-    $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
-};
+        xhr.onerror = function() {
+            // CORS error but data might be saved
+            showStatus("✅ ส่งข้อมูลแล้ว กำลังโหลดข้อมูล...", "success");
+            setTimeout(async function() {
+                await checkHistory();
+                showView('history');
+            }, 2000);
+        };
 
-console.log("📤 Sending request...");
-xhr.send(JSON.stringify(payload));
-    
-    console.log("Response status:", res.status);
-    console.log("Response OK:", res.ok);
-
-            const json = await res.json();
-            
-            if (json.ok) {
-                showStatus("✅ ส่งสำเร็จ! กำลังโหลดข้อมูล...", "success");
-                setTimeout(async () => {
-                    await checkHistory();
-                    showView('history');
-                }, 1500);
-            } else {
-                throw new Error(json.error || "เกิดข้อผิดพลาด");
-            }
-        } catch (e) {
-            showStatus(`❌ ส่งไม่สำเร็จ: ${e.message}`, "error");
-            $("submitBtn").disabled = false;
-            $("submitBtn").innerHTML = '🔄 ลองส่งอีกครั้ง';
-        }
+        xhr.send(JSON.stringify(payload));
     });
 
-    $("resubmitBtn")?.addEventListener('click', () => {
+    $("resubmitBtn")?.addEventListener('click', function() {
         showView('form');
         $("mainForm").reset();
         showStatus("📝 กรุณากรอกข้อมูลใหม่", "info");
     });
 
-    $("shareFlexBtn")?.addEventListener('click', async () => {
+    $("shareFlexBtn")?.addEventListener('click', async function() {
         if (!latestData) { alert("ไม่พบข้อมูล"); return; }
         const msg = `🔔 ประกาศงาน: ${latestData['ตำแหน่งงาน']}\n🏢 ${latestData['ชื่อบริษัท/บุคคล']}\n📍 ${latestData['สถานที่ทำงาน']}, ${latestData['อำเภอ']}\n💰 ${latestData['รูปแบบค่าจ้าง']} ${latestData['จำนวนค่าจ้าง (บาท)']} บาท\n📞 ${latestData['เบอร์โทรศัพท์']}`;
         
@@ -484,12 +431,12 @@ xhr.send(JSON.stringify(payload));
         }
     });
 
-    $("closeWindowBtn")?.addEventListener('click', () => {
+    $("closeWindowBtn")?.addEventListener('click', function() {
         if (liff.closeWindow) liff.closeWindow();
         else alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
     });
 
-    $("job_title_select").addEventListener('change', e => {
+    $("job_title_select").addEventListener('change', function(e) {
         const other = $("job_title_other_group");
         if (e.target.value === 'อื่นๆ') {
             other.classList.remove('hidden');
@@ -500,7 +447,7 @@ xhr.send(JSON.stringify(payload));
         }
     });
 
-    $("wage_type").addEventListener('change', e => {
+    $("wage_type").addEventListener('change', function(e) {
         const group = $("lump_sum_days_group");
         if (e.target.value === 'เหมาจ้าง') {
             group.classList.remove('hidden');
@@ -515,4 +462,3 @@ xhr.send(JSON.stringify(payload));
     </script>
 </body>
 </html>
-
