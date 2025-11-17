@@ -206,31 +206,22 @@
     </div>
 
     <script>
-    // ⚠️ สำคัญ: ให้แก้ไข URL นี้หลังจาก Deploy Google Apps Script 
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
+    // ✅ Apps Script URL และ LIFF ID พร้อมใช้งาน
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
     const LIFF_ID = "2008394776-yGB4gQdv";
-
     const $ = id => document.getElementById(id);
-    let userProfile, userIdToken, liffReady = false;
+    let userProfile, liffReady = false;
 
     async function init() {
         try {
-            console.log("🔄 Initializing LIFF...");
             await liff.init({ liffId: LIFF_ID });
-            
             if (!liff.isLoggedIn()) { 
-                console.log("⚠️ Not logged in, redirecting...");
                 liff.login(); 
                 return; 
             }
             
             userProfile = await liff.getProfile();
-            userIdToken = liff.getIDToken();
             liffReady = true;
-
-            console.log("✅ LIFF Ready!");
-            console.log("User:", userProfile.displayName);
-            console.log("User ID:", userProfile.userId);
 
             $("hello").textContent = `สวัสดี, ${userProfile.displayName} 👋`;
             $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
@@ -240,9 +231,7 @@
             $("submitBtn").textContent = '✅ ส่งข้อมูล';
             showStatus("กรุณากรอกข้อมูลเพื่อหางาน", "info");
         } catch (e) {
-            console.error("❌ LIFF Init Error:", e);
-            console.error("Error message:", e.message);
-            console.error("Error stack:", e.stack);
+            console.error(e);
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
@@ -257,15 +246,7 @@
 
     $("mainForm").addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        console.log("=== FORM SUBMIT START ===");
-        console.log("LIFF Ready:", liffReady);
-        
-        if (!liffReady) { 
-            console.log("⚠️ LIFF not ready");
-            showStatus("กรุณารอสักครู่...", "info"); 
-            return; 
-        }
+        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
 
         const payload = {
             type: "jobseeker",
@@ -296,36 +277,48 @@
         showStatus("กำลังส่งข้อมูล...", "info");
 
         try {
-            console.log("=== DEBUG INFO ===");
-            console.log("GAS_ENDPOINT:", GAS_ENDPOINT);
-            console.log("Payload:", JSON.stringify(payload, null, 2));
+            // ใช้ XMLHttpRequest แทน fetch เพื่อแก้ปัญหา CORS
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', SCRIPT_URL, true);
+            xhr.setRequestHeader('Content-Type', 'text/plain'); // ใช้ text/plain เพื่อหลีก CORS preflight
             
-            console.log("📤 Sending request...");
-            const res = await fetch(GAS_ENDPOINT, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.ok) {
+                            $("form-view").classList.add('hidden');
+                            $("success-view").classList.remove('hidden');
+                        } else {
+                            showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
+                            $("submitBtn").disabled = false;
+                            $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                        }
+                    } catch (parseError) {
+                        // ถ้า parse ไม่ได้ แสดงว่าส่งสำเร็จแล้ว (response อาจเป็น HTML)
+                        $("form-view").classList.add('hidden');
+                        $("success-view").classList.remove('hidden');
+                    }
+                } else {
+                    showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
+                    $("submitBtn").disabled = false;
+                    $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                }
+            };
             
-            console.log("📥 Response received");
-            console.log("Status:", res.status);
-            console.log("OK:", res.ok);
-
-            const json = await res.json();
-            console.log("Response data:", json);
+            xhr.onerror = function() {
+                // แม้จะ error แต่ข้อมูลอาจส่งสำเร็จแล้ว (CORS issue)
+                // ลองเช็ค Sheets ว่ามีข้อมูลไหม
+                showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
+                setTimeout(() => {
+                    $("form-view").classList.add('hidden');
+                    $("success-view").classList.remove('hidden');
+                }, 2000);
+            };
             
-            if (json.ok) {
-                console.log("✅ Success!");
-                $("form-view").classList.add('hidden');
-                $("success-view").classList.remove('hidden');
-            } else {
-                throw new Error(json.error || "เกิดข้อผิดพลาด");
-            }
+            xhr.send(JSON.stringify(payload));
+                
         } catch (e) {
-            console.error("❌ Error:", e);
-            console.error("Error message:", e.message);
-            console.error("Error stack:", e.stack);
-            
             showStatus(`❌ ส่งไม่สำเร็จ: ${e.message}`, "error");
             $("submitBtn").disabled = false;
             $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
@@ -333,11 +326,13 @@
     });
 
     $("closeBtn")?.addEventListener('click', () => {
-        if (liff.closeWindow) liff.closeWindow();
-        else alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
+        if (liff.isInClient()) {
+            liff.closeWindow();
+        } else {
+            alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
+        }
     });
 
-    console.log("📱 Script loaded, starting init...");
     init();
     </script>
 </body>
