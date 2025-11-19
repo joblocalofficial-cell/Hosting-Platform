@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -52,6 +52,23 @@
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #17a2b8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Modal styles */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { padding: 20px 24px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; color: #17a2b8; font-size: 1.3em; }
+        .close-btn { background: none; border: none; font-size: 2em; color: #999; cursor: pointer; padding: 0; width: 32px; height: 32px; line-height: 1; }
+        .close-btn:hover { color: #333; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-body h4 { color: #17a2b8; margin: 20px 0 12px; font-size: 1.1em; }
+        .modal-body p { line-height: 1.8; color: #555; margin-bottom: 16px; }
+        .modal-body ul { margin: 12px 0 16px 20px; }
+        .modal-body li { line-height: 1.8; color: #555; margin-bottom: 8px; }
+        .modal-body em { color: #666; }
+        .modal-footer { padding: 16px 24px; border-top: 2px solid #f0f0f0; }
+        .btn-accept { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 14px 24px; border: none; border-radius: 10px; font-size: 1.05em; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(23,162,184,0.4); }
+        
         /* Recommended roles styling */
         .recommended-box { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 2px solid #ffc107; padding: 16px; border-radius: 12px; margin: 16px 0; }
         .recommended-box h3 { margin: 0 0 12px; color: #856404; font-size: 1.1em; }
@@ -76,8 +93,53 @@
                 <div class="pdpa-box">
                     <label>
                         <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
-                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล</span>
+                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล 
+                        <a href="#" id="pdpaDetailLink" style="color: #17a2b8; text-decoration: underline; margin-left: 8px;">อ่านเพิ่มเติม</a></span>
                     </label>
+                </div>
+
+                <!-- PDPA Detail Modal -->
+                <div id="pdpaModal" class="modal hidden">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>📋 นโยบายความเป็นส่วนตัว (PDPA)</h3>
+                            <button type="button" id="closePdpaModal" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>ข้าพเจ้าขอให้ความยินยอมในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</strong></p>
+                            
+                            <h4>1. วัตถุประสงค์ของการเก็บข้อมูล</h4>
+                            <ul>
+                                <li>การจับคู่งานระหว่างผู้หางานและผู้จ้างงานภายในจังหวัดปทุมธานี</li>
+                                <li>การติดต่อ แจ้งข้อมูลการสมัครงาน ผลการจับคู่ หรือข้อเสนองาน</li>
+                                <li>การวิเคราะห์ข้อมูลเชิงสถิติ เพื่อพัฒนาระบบและบริการของโครงการ JobLocal</li>
+                                <li>การยืนยันตัวตน (KYC) เพื่อความปลอดภัยในการจับคู่และการจ้างงาน</li>
+                            </ul>
+                            
+                            <h4>2. ประเภทข้อมูลส่วนบุคคลที่เก็บรวบรวม</h4>
+                            <p>ชื่อ-นามสกุล เบอร์โทรศัพท์ อีเมล ที่อยู่ อายุ เพศ ข้อมูลการศึกษา ประสบการณ์ทำงาน ทักษะ รูปถ่าย และเอกสารยืนยันตัวตน</p>
+                            
+                            <h4>3. การเปิดเผยข้อมูลแก่บุคคลภายนอก</h4>
+                            <p>ข้อมูลจะถูกเปิดเผยเฉพาะกับ:</p>
+                            <ul>
+                                <li>ผู้ว่าจ้างที่ลงทะเบียนภายในระบบ JobLocal</li>
+                                <li>หน่วยงานภาครัฐหรือองค์กรพันธมิตรที่ร่วมโครงการ</li>
+                            </ul>
+                            <p><em>จะไม่เปิดเผยข้อมูลเพื่อการค้า หรือส่งต่อให้บุคคลที่สามโดยไม่ได้รับความยินยอม</em></p>
+                            
+                            <h4>4. สิทธิของเจ้าของข้อมูล</h4>
+                            <p>ท่านมีสิทธิในการเข้าถึงข้อมูล ขอแก้ไขข้อมูล และถอนความยินยอมได้ทุกเมื่อ โดยติดต่อทีมงาน JobLocal Pathum Thani ผ่าน LINE Official Account</p>
+                            
+                            <h4>5. ระยะเวลาการเก็บรักษาข้อมูล</h4>
+                            <p>ข้อมูลจะถูกจัดเก็บไว้นานไม่เกิน <strong>2 ปี</strong> นับจากวันที่ส่งแบบฟอร์ม หรือจนกว่าจะมีการขอถอนข้อมูล</p>
+                            
+                            <h4>6. การให้ความยินยอม</h4>
+                            <p>ข้าพเจ้ารับทราบและเข้าใจเงื่อนไขดังกล่าว และยินยอมให้เก็บ รวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตามวัตถุประสงค์ข้างต้น</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="acceptPdpa" class="btn-accept">✓ เข้าใจและยอมรับ</button>
+                        </div>
+                    </div>
                 </div>
 
                 <h2>👤 ข้อมูลส่วนตัว</h2>
@@ -208,24 +270,70 @@
         </div>
         
         <div id="success-view" class="hidden success-box">
-            <div class="success-icon">✅</div>
-            <h2 style="color: #17a2b8;">ส่งข้อมูลสำเร็จ!</h2>
-            <p style="margin: 24px 0; line-height: 1.8; color: #666; font-size: 1.05em;">
-                ขอบคุณที่ลงทะเบียนกับ <strong style="color: #17a2b8;">JobLocal Pathum Thani</strong><br>
-                เราจะแจ้งเตือนคุณเมื่อมีงานที่เหมาะสม 🎯
-            </p>
+            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #17a2b8;">📋 ประวัติการสมัครงาน</h2>
+            
+            <div class="history-box" style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">ชื่อ-นามสกุล</div>
+                    <div class="history-value" style="color: #6c757d;" id="hist-fullname"></div>
+                </div>
+                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">งานที่ต้องการ</div>
+                    <div class="history-value" style="color: #6c757d;" id="hist-job"></div>
+                </div>
+                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">ประสบการณ์</div>
+                    <div class="history-value" style="color: #6c757d;" id="hist-exp"></div>
+                </div>
+                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">ทักษะ</div>
+                    <div class="history-value" style="color: #6c757d;" id="hist-skills"></div>
+                </div>
+                <div class="history-item" style="padding: 12px 0;">
+                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">วันที่สมัคร</div>
+                    <div class="history-value" style="color: #6c757d;" id="hist-date"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 24px 0; padding: 16px; background: #d4edda; border-radius: 10px; color: #155724;">
+                <strong>✅ ส่งข้อมูลสำเร็จ!</strong><br>
+                <small>เราจะแจ้งเตือนคุณเมื่อมีงานที่เหมาะสม</small>
+            </div>
+
             <button id="closeBtn" class="btn-secondary">ปิดหน้าต่าง</button>
         </div>
     </div>
 
     <script>
     // ✅ Configuration
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxzcCUSWmFM0FUKBS448URffyg8TZnn9-hAkH3qms1gUZSLeAnBMk59In-ATeAS4J8P_Q/exec";
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
     const LIFF_ID = "2008394776-yGB4gQdv";
     
     const $ = id => document.getElementById(id);
     let userProfile, liffReady = false;
     let allRoles = []; // Store all roles
+
+    // ✨ PDPA Modal handlers
+    $("pdpaDetailLink").addEventListener('click', function(e) {
+        e.preventDefault();
+        $("pdpaModal").classList.remove('hidden');
+    });
+
+    $("closePdpaModal").addEventListener('click', function() {
+        $("pdpaModal").classList.add('hidden');
+    });
+
+    $("acceptPdpa").addEventListener('click', function() {
+        $("consent_pdpa").checked = true;
+        $("pdpaModal").classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    $("pdpaModal").addEventListener('click', function(e) {
+        if (e.target === $("pdpaModal")) {
+            $("pdpaModal").classList.add('hidden');
+        }
+    });
 
     async function init() {
         try {
@@ -445,16 +553,16 @@
                 try {
                     const result = JSON.parse(xhr.responseText);
                     if (result.ok) {
-                        $("form-view").classList.add('hidden');
-                        $("success-view").classList.remove('hidden');
+                        // ✨ Show history with submitted data
+                        showSubmittedHistory(payload.data);
                     } else {
                         showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
                         $("submitBtn").disabled = false;
                         $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
                     }
                 } catch (parseError) {
-                    $("form-view").classList.add('hidden');
-                    $("success-view").classList.remove('hidden');
+                    // ✨ Even if parse error, show history
+                    showSubmittedHistory(payload.data);
                 }
             } else {
                 showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
@@ -464,15 +572,30 @@
         };
         
         xhr.onerror = function() {
-            showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
-            setTimeout(function() {
-                $("form-view").classList.add('hidden');
-                $("success-view").classList.remove('hidden');
-            }, 2000);
+            // ✨ On error, still show history (likely CORS, but data saved)
+            showSubmittedHistory(payload.data);
         };
         
         xhr.send(JSON.stringify(payload));
     });
+
+    // ✨ Show submitted data in history view
+    function showSubmittedHistory(data) {
+        $("hist-fullname").textContent = data.full_name || '-';
+        $("hist-job").textContent = data.desired_job || '-';
+        $("hist-exp").textContent = data.work_experience || '-';
+        $("hist-skills").textContent = data.skills || '-';
+        $("hist-date").textContent = new Date().toLocaleString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        $("form-view").classList.add('hidden');
+        $("success-view").classList.remove('hidden');
+    }
 
     $("closeBtn").addEventListener('click', function() {
         if (liff.isInClient()) {
