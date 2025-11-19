@@ -51,6 +51,14 @@
         
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #17a2b8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Recommended roles styling */
+        .recommended-box { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 2px solid #ffc107; padding: 16px; border-radius: 12px; margin: 16px 0; }
+        .recommended-box h3 { margin: 0 0 12px; color: #856404; font-size: 1.1em; }
+        .role-item { background: white; padding: 12px; margin: 8px 0; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+        .role-item:hover { border-color: #17a2b8; transform: translateX(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .role-item strong { color: #17a2b8; display: block; margin-bottom: 4px; }
+        .role-item small { color: #666; }
     </style>
 </head>
 <body>
@@ -144,19 +152,24 @@
 
                 <h2>🎯 งานที่ต้องการ</h2>
 
+                <!-- ✨ แนะนำตำแหน่งงาน -->
+                <div id="recommended-roles" class="recommended-box hidden">
+                    <h3>💡 ตำแหน่งที่แนะนำสำหรับคุณ:</h3>
+                    <div id="recommended-list"></div>
+                </div>
+
                 <div class="form-group">
-                    <label for="desired_job">งานที่คุณอยากทำ *</label>
-                    <select id="desired_job" name="desired_job" required>
-                        <option value="">--- เลือกประเภทงาน ---</option>
-                        <option value="งานบริการ">งานบริการ (เสิร์ฟ/พนักงานต้อนรับ)</option>
-                        <option value="งานขาย">งานขาย</option>
-                        <option value="งานแม่บ้าน">งานแม่บ้าน/ทำความสะอาด</option>
-                        <option value="งานช่าง">งานช่าง/ซ่อมบำรุง</option>
-                        <option value="งานขับรถ">งานขับรถ/ส่งของ</option>
-                        <option value="งานครัว">งานครัว/ทำอาหาร</option>
-                        <option value="งานทั่วไป">งานทั่วไป/รายวัน</option>
-                        <option value="งานออฟฟิศ">งานออฟฟิศ/ธุรการ</option>
-                    </select>
+                    <label for="desired_job">งานที่คุณอยากทำ * <small style="color: #17a2b8;">(เลือกจากตำแหน่งงานในปทุมธานี)</small></label>
+                    <input 
+                        id="desired_job" 
+                        name="desired_job" 
+                        list="job-suggestions"
+                        placeholder="พิมพ์เพื่อค้นหา เช่น 'บริการ', 'ร้านอาหาร', 'ท่องเที่ยว'"
+                        required
+                        autocomplete="off"
+                    >
+                    <datalist id="job-suggestions"></datalist>
+                    <div id="selected-role-info" class="hint hidden" style="background: #e3f2fd; padding: 8px; border-radius: 6px; margin-top: 8px;"></div>
                 </div>
 
                 <div class="form-group">
@@ -207,11 +220,12 @@
 
     <script>
     // ✅ Configuration
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxzcCUSWmFM0FUKBS448URffyg8TZnn9-hAkH3qms1gUZSLeAnBMk59In-ATeAS4J8P_Q/exec";
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
     const LIFF_ID = "2008394776-yGB4gQdv";
     
     const $ = id => document.getElementById(id);
     let userProfile, liffReady = false;
+    let allRoles = []; // Store all roles
 
     async function init() {
         try {
@@ -231,11 +245,156 @@
             $("submitBtn").disabled = false;
             $("submitBtn").textContent = '✅ ส่งข้อมูล';
             showStatus("กรุณากรอกข้อมูลเพื่อหางาน", "info");
+            
+            // ✨ Load job roles
+            await loadRoles();
+            
         } catch (e) {
             console.error("LIFF Error:", e);
             $("hello").textContent = "❌ เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
+    }
+
+    // ✨ Load roles from API
+    async function loadRoles() {
+        try {
+            showStatus("กำลังโหลดตำแหน่งงาน...", "info");
+            const response = await fetch(`${GAS_ENDPOINT}?api=roles`);
+            const data = await response.json();
+            
+            if (data.ok && data.roles) {
+                allRoles = data.roles;
+                updateJobSuggestions(allRoles);
+                showStatus("พร้อมใช้งาน! 🎉", "success");
+                setTimeout(() => $("status").classList.add('hidden'), 2000);
+            } else {
+                console.error("Failed to load roles:", data.error);
+                // Fallback to default options if API fails
+                useFallbackRoles();
+            }
+        } catch (e) {
+            console.error("Error loading roles:", e);
+            useFallbackRoles();
+        }
+    }
+
+    // Update datalist with roles
+    function updateJobSuggestions(roles) {
+        const datalist = $("job-suggestions");
+        datalist.innerHTML = '';
+        
+        roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.name_th;
+            option.textContent = `${role.name_th} - ${role.category} (${role.pay_min}-${role.pay_max} บาท/วัน)`;
+            datalist.appendChild(option);
+        });
+    }
+
+    // Fallback roles if API fails
+    function useFallbackRoles() {
+        const fallback = [
+            "งานบริการ (เสิร์ฟ/พนักงานต้อนรับ)",
+            "งานขาย",
+            "งานแม่บ้าน/ทำความสะอาด",
+            "งานช่าง/ซ่อมบำรุง",
+            "งานขับรถ/ส่งของ",
+            "งานครัว/ทำอาหาร",
+            "งานทั่วไป/รายวัน",
+            "งานออฟฟิศ/ธุรการ"
+        ];
+        
+        const datalist = $("job-suggestions");
+        datalist.innerHTML = '';
+        fallback.forEach(job => {
+            const option = document.createElement('option');
+            option.value = job;
+            datalist.appendChild(option);
+        });
+        
+        showStatus("โหลดตำแหน่งงานเสร็จสิ้น", "success");
+        setTimeout(() => $("status").classList.add('hidden'), 2000);
+    }
+
+    // ✨ Show role info when selected
+    $("desired_job").addEventListener('change', function() {
+        const selected = this.value;
+        const role = allRoles.find(r => r.name_th === selected);
+        
+        if (role) {
+            const info = $("selected-role-info");
+            info.innerHTML = `📍 ${role.category} | 💰 ค่าจ้างโดยเฉลี่ย: ${role.pay_min}-${role.pay_max} บาท/วัน`;
+            info.classList.remove('hidden');
+        } else {
+            $("selected-role-info").classList.add('hidden');
+        }
+    });
+
+    // ✨ Smart recommendation after filling skills
+    $("skills").addEventListener('blur', async function() {
+        const skills = this.value.trim();
+        const experience = $("work_experience").value;
+        
+        if (!skills || skills.length < 3) return;
+        if (allRoles.length === 0) return;
+        
+        // Simple client-side matching
+        const keywords = skills.toLowerCase().split(/[,;\s]+/);
+        
+        const scored = allRoles.map(role => {
+            let score = 0;
+            const roleText = `${role.name_th} ${role.category} ${role.skills || ''}`.toLowerCase();
+            
+            keywords.forEach(keyword => {
+                if (keyword.length > 2 && roleText.includes(keyword)) {
+                    score += 5;
+                }
+            });
+            
+            return { ...role, score };
+        });
+        
+        const recommended = scored
+            .filter(r => r.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 5);
+        
+        if (recommended.length > 0) {
+            showRecommendations(recommended);
+        }
+    });
+
+    // Show recommended roles
+    function showRecommendations(roles) {
+        const container = $("recommended-roles");
+        const list = $("recommended-list");
+        
+        container.classList.remove('hidden');
+        list.innerHTML = '';
+        
+        roles.forEach((role, idx) => {
+            const div = document.createElement('div');
+            div.className = 'role-item';
+            div.innerHTML = `
+                <strong>${idx + 1}. ${role.name_th}</strong>
+                <small>
+                    📍 ${role.category} | 
+                    💰 ${role.pay_min}-${role.pay_max} บาท/วัน
+                </small>
+            `;
+            
+            div.addEventListener('click', () => {
+                $("desired_job").value = role.name_th;
+                $("desired_job").dispatchEvent(new Event('change'));
+                container.classList.add('hidden');
+                
+                // Scroll to desired_job field
+                $("desired_job").scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            
+            list.appendChild(div);
+        });
     }
 
     function showStatus(msg, type = 'info') {
@@ -247,10 +406,7 @@
 
     $("mainForm").addEventListener('submit', function(e) {
         e.preventDefault();
-        if (!liffReady) { 
-            showStatus("กรุณารอสักครู่...", "info"); 
-            return; 
-        }
+        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
 
         const payload = {
             type: "jobseeker",
@@ -280,7 +436,6 @@
         $("submitBtn").innerHTML = '<div class="loader"></div>';
         showStatus("กำลังส่งข้อมูล...", "info");
 
-        // ✅ Use XMLHttpRequest
         const xhr = new XMLHttpRequest();
         xhr.open('POST', GAS_ENDPOINT, true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
@@ -298,7 +453,6 @@
                         $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
                     }
                 } catch (parseError) {
-                    // Response might be HTML, assume success
                     $("form-view").classList.add('hidden');
                     $("success-view").classList.remove('hidden');
                 }
@@ -310,7 +464,6 @@
         };
         
         xhr.onerror = function() {
-            // CORS error but data might be saved
             showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
             setTimeout(function() {
                 $("form-view").classList.add('hidden');
