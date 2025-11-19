@@ -219,26 +219,22 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="job_category">ประเภทงาน *</label>
-                    <select id="job_category" name="job_category" required>
-                        <option value="">เลือกประเภท</option>
-                        <option value="บริการ / ร้านอาหาร">บริการ / ร้านอาหาร</option>
-                        <option value="ขาย / การตลาด">ขาย / การตลาด</option>
-                        <option value="โรงงาน / ผลิต">โรงงาน / ผลิต</option>
-                        <option value="ก่อสร้าง / ช่าง">ก่อสร้าง / ช่าง</option>
-                        <option value="ขนส่ง / โลจิสติกส์">ขนส่ง / โลจิสติกส์</option>
-                        <option value="เกษตรกรรม">เกษตรกรรม</option>
-                        <option value="IT / เทคโนโลยี">IT / เทคโนโลยี</option>
-                        <option value="บัญชี / การเงิน">บัญชี / การเงิน</option>
-                        <option value="HR / บริหารทั่วไป">HR / บริหารทั่วไป</option>
-                        <option value="อื่นๆ">อื่นๆ</option>
-                    </select>
+                    <label for="job_description">รายละเอียดงานและคุณสมบัติผู้สมัคร *</label>
+                    <textarea id="job_description" name="job_description" rows="6" placeholder="รายละเอียดงาน:&#10;- หน้าที่ความรับผิดชอบ&#10;- ลักษณะงาน&#10;&#10;คุณสมบัติผู้สมัคร:&#10;- ทักษะที่ต้องการ&#10;- ประสบการณ์" required></textarea>
+                    <div class="hint" id="skills_hint">ระบุรายละเอียดงานและคุณสมบัติที่ต้องการให้ชัดเจน</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="job_description">รายละเอียดงานและคุณสมบัติผู้สมัคร *</label>
-                    <textarea id="job_description" name="job_description" rows="6" placeholder="รายละเอียดงาน:&#10;- หน้าที่ความรับผิดชอบ&#10;- ลักษณะงาน&#10;&#10;คุณสมบัติผู้สมัคร:&#10;- มีใบขับขี่&#10;- พูดอังกฤษได้&#10;- มีประสบการณ์..." required></textarea>
-                    <div class="hint">ระบุรายละเอียดงานและคุณสมบัติที่ต้องการให้ชัดเจน</div>
+                    <label for="education_required">ระดับการศึกษาที่ต้องการ *</label>
+                    <select id="education_required" name="education_required" required>
+                        <option value="">เลือกระดับการศึกษา</option>
+                        <option value="ไม่จำกัด">ไม่จำกัด</option>
+                        <option value="ต่ำกว่า ม.6">ต่ำกว่า ม.6</option>
+                        <option value="ม.6 / ปวช.">ม.6 / ปวช.</option>
+                        <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                        <option value="ปริญญาตรี">ปริญญาตรี</option>
+                        <option value="สูงกว่าปริญญาตรี">สูงกว่าปริญญาตรี</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -538,13 +534,12 @@
         wageInfo.innerHTML = `<strong>ค่าจ้างแนะนำ:</strong> ${selectedRole.pay_min}-${selectedRole.pay_max} บาท/วัน<br><small>${selectedRole.category}</small>`;
         wageInfo.classList.remove('hidden');
         
-        // Auto-fill job_category if matches
-        const categorySelect = $("job_category");
-        for (let option of categorySelect.options) {
-            if (option.value.includes(selectedRole.category) || selectedRole.category.includes(option.value)) {
-                categorySelect.value = option.value;
-                break;
-            }
+        // แสดง skills เป็น hint
+        if (selectedRole.skills) {
+            const skillsHint = $("skills_hint");
+            skillsHint.innerHTML = `💡 <strong>ทักษะแนะนำ:</strong> ${selectedRole.skills}`;
+            skillsHint.style.color = '#0066cc';
+            skillsHint.style.fontWeight = '600';
         }
     }
 
@@ -586,8 +581,8 @@
                 contact_person: $("contact_person").value,
                 contact_phone: $("contact_phone").value,
                 job_title: $("job_title").value,
-                job_category: $("job_category").value,
                 job_description: $("job_description").value,
+                education_required: $("education_required").value,
                 work_type: $("work_type").value,
                 experience_required: $("experience_required").value,
                 location_area: $("location_area").value,
