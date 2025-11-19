@@ -10,10 +10,7 @@
 Hosting-Platform/
 ├── jobseeker.html          # ฟอร์มสำหรับผู้หางาน
 ├── employee.html           # ฟอร์มสำหรับนายจ้าง
-├── Code.gs                 # Google Apps Script Backend
-├── DEPLOYMENT_GUIDE.md     # คู่มือการติดตั้งและ Deploy
-└── README.md               # ไฟล์นี้
-```
+├── 
 
 ---
 
