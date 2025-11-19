@@ -177,8 +177,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="company_or_org">ชื่อบริษัท/องค์กร *</label>
-                    <input id="company_or_org" name="company_or_org" placeholder="ระบุชื่อบริษัทหรือองค์กร" required>
+                    <label for="company_or_org" id="company_label">ชื่อบริษัท/องค์กร *</label>
+                    <input id="company_or_org" name="company_or_org" placeholder="ระบุชื่อ" required>
                 </div>
                 
                 <div class="row">
@@ -191,12 +191,6 @@
                         <input id="contact_phone" name="contact_phone" type="tel" pattern="[0-9]{10}" placeholder="0812345678" required>
                         <div class="hint">กรอก 10 หลัก</div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="contact_line_id">LINE ID ผู้ติดต่อ</label>
-                    <input id="contact_line_id" name="contact_line_id" placeholder="@lineID หรือ lineID">
-                    <div class="hint">ไม่บังคับ</div>
                 </div>
 
                 <h2>ข้อมูลงาน</h2>
@@ -212,6 +206,7 @@
                         required
                         autocomplete="off"
                     >
+                    <div class="hint">ถ้าไม่มีในรายการ กรุณาระบุ</div>
                     
                     <!-- Autocomplete Dropdown -->
                     <div id="autocomplete_dropdown" class="autocomplete-dropdown hidden"></div>
@@ -241,21 +236,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="job_description">รายละเอียดงาน *</label>
-                    <textarea id="job_description" name="job_description" rows="4" placeholder="อธิบายลักษณะงาน หน้าที่ความรับผิดชอบ" required></textarea>
-                    <div class="hint">ระบุรายละเอียดให้ชัดเจน</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="qualifications">คุณสมบัติผู้สมัคร *</label>
-                    <textarea id="qualifications" name="qualifications" rows="3" placeholder="เช่น มีใบขับขี่, พูดอังกฤษได้, มีประสบการณ์ด้าน..." required></textarea>
-                    <div class="hint">ระบุคุณสมบัติที่ต้องการ</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="benefits">สวัสดิการ</label>
-                    <textarea id="benefits" name="benefits" rows="2" placeholder="เช่น ประกันสังคม, โบนัส, ค่าเดินทาง, ที่พัก"></textarea>
-                    <div class="hint">ไม่บังคับ</div>
+                    <label for="job_description">รายละเอียดงานและคุณสมบัติผู้สมัคร *</label>
+                    <textarea id="job_description" name="job_description" rows="6" placeholder="รายละเอียดงาน:&#10;- หน้าที่ความรับผิดชอบ&#10;- ลักษณะงาน&#10;&#10;คุณสมบัติผู้สมัคร:&#10;- มีใบขับขี่&#10;- พูดอังกฤษได้&#10;- มีประสบการณ์..." required></textarea>
+                    <div class="hint">ระบุรายละเอียดงานและคุณสมบัติที่ต้องการให้ชัดเจน</div>
                 </div>
 
                 <div class="form-group">
@@ -406,6 +389,23 @@
         if (e.target === $("pdpaModal")) {
             $("pdpaModal").classList.add('hidden');
         }
+    });
+
+    // Dynamic company label based on user_type
+    $("user_type").addEventListener('change', function() {
+        const companyLabel = $("company_label");
+        const value = this.value;
+        
+        const labels = {
+            'บริษัท/ห้างร้าน': 'ชื่อบริษัท/ห้างร้าน *',
+            'ร้านอาหาร': 'ชื่อร้านอาหาร *',
+            'โรงงาน': 'ชื่อโรงงาน *',
+            'บุคคลทั่วไป': 'ชื่อผู้ว่าจ้าง *',
+            'องค์กรภาครัฐ': 'ชื่อหน่วยงาน *',
+            'อื่นๆ': 'ชื่อบริษัท/องค์กร *'
+        };
+        
+        companyLabel.textContent = labels[value] || 'ชื่อบริษัท/องค์กร *';
     });
 
     // Conditional field: lump_sum_days
@@ -585,12 +585,9 @@
                 company_or_org: $("company_or_org").value,
                 contact_person: $("contact_person").value,
                 contact_phone: $("contact_phone").value,
-                contact_line_id: $("contact_line_id").value,
                 job_title: $("job_title").value,
                 job_category: $("job_category").value,
                 job_description: $("job_description").value,
-                qualifications: $("qualifications").value,
-                benefits: $("benefits").value,
                 work_type: $("work_type").value,
                 experience_required: $("experience_required").value,
                 location_area: $("location_area").value,
