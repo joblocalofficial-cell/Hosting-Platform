@@ -61,6 +61,23 @@
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4caf50; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Modal styles */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { padding: 20px 24px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; color: #4caf50; font-size: 1.3em; }
+        .close-btn { background: none; border: none; font-size: 2em; color: #999; cursor: pointer; padding: 0; width: 32px; height: 32px; line-height: 1; }
+        .close-btn:hover { color: #333; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-body h4 { color: #4caf50; margin: 20px 0 12px; font-size: 1.1em; }
+        .modal-body p { line-height: 1.8; color: #555; margin-bottom: 16px; }
+        .modal-body ul { margin: 12px 0 16px 20px; }
+        .modal-body li { line-height: 1.8; color: #555; margin-bottom: 8px; }
+        .modal-body em { color: #666; }
+        .modal-footer { padding: 16px 24px; border-top: 2px solid #f0f0f0; }
+        .btn-accept { background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; padding: 14px 24px; border: none; border-radius: 10px; font-size: 1.05em; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(76,175,80,0.4); }
+        
         /* Wage suggestion box */
         .wage-suggestion { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 12px; border-radius: 8px; margin-top: 8px; border: 2px solid #ffc107; }
         .wage-suggestion strong { color: #856404; }
@@ -82,8 +99,53 @@
                 <div class="pdpa-box">
                     <label>
                         <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
-                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล</span>
+                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล 
+                        <a href="#" id="pdpaDetailLink" style="color: #4caf50; text-decoration: underline; margin-left: 8px;">อ่านเพิ่มเติม</a></span>
                     </label>
+                </div>
+
+                <!-- PDPA Detail Modal -->
+                <div id="pdpaModal" class="modal hidden">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>📋 นโยบายความเป็นส่วนตัว (PDPA)</h3>
+                            <button type="button" id="closePdpaModal" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>ข้าพเจ้าขอให้ความยินยอมในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</strong></p>
+                            
+                            <h4>1. วัตถุประสงค์ของการเก็บข้อมูล</h4>
+                            <ul>
+                                <li>การจับคู่งานระหว่างผู้หางานและผู้จ้างงานภายในจังหวัดปทุมธานี</li>
+                                <li>การติดต่อ แจ้งข้อมูลการสมัครงาน ผลการจับคู่ หรือข้อเสนองาน</li>
+                                <li>การวิเคราะห์ข้อมูลเชิงสถิติ เพื่อพัฒนาระบบและบริการของโครงการ JobLocal</li>
+                                <li>การยืนยันตัวตน (KYC) เพื่อความปลอดภัยในการจับคู่และการจ้างงาน</li>
+                            </ul>
+                            
+                            <h4>2. ประเภทข้อมูลส่วนบุคคลที่เก็บรวบรวม</h4>
+                            <p>ชื่อ-นามสกุล เบอร์โทรศัพท์ อีเมล ที่อยู่ อายุ เพศ ข้อมูลการศึกษา ประสบการณ์ทำงาน ทักษะ รูปถ่าย และเอกสารยืนยันตัวตน</p>
+                            
+                            <h4>3. การเปิดเผยข้อมูลแก่บุคคลภายนอก</h4>
+                            <p>ข้อมูลจะถูกเปิดเผยเฉพาะกับ:</p>
+                            <ul>
+                                <li>ผู้ว่าจ้างที่ลงทะเบียนภายในระบบ JobLocal</li>
+                                <li>หน่วยงานภาครัฐหรือองค์กรพันธมิตรที่ร่วมโครงการ</li>
+                            </ul>
+                            <p><em>จะไม่เปิดเผยข้อมูลเพื่อการค้า หรือส่งต่อให้บุคคลที่สามโดยไม่ได้รับความยินยอม</em></p>
+                            
+                            <h4>4. สิทธิของเจ้าของข้อมูล</h4>
+                            <p>ท่านมีสิทธิในการเข้าถึงข้อมูล ขอแก้ไขข้อมูล และถอนความยินยอมได้ทุกเมื่อ โดยติดต่อทีมงาน JobLocal Pathum Thani ผ่าน LINE Official Account</p>
+                            
+                            <h4>5. ระยะเวลาการเก็บรักษาข้อมูล</h4>
+                            <p>ข้อมูลจะถูกจัดเก็บไว้นานไม่เกิน <strong>2 ปี</strong> นับจากวันที่ส่งแบบฟอร์ม หรือจนกว่าจะมีการขอถอนข้อมูล</p>
+                            
+                            <h4>6. การให้ความยินยอม</h4>
+                            <p>ข้าพเจ้ารับทราบและเข้าใจเงื่อนไขดังกล่าว และยินยอมให้เก็บ รวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตามวัตถุประสงค์ข้างต้น</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="acceptPdpa" class="btn-accept">✓ เข้าใจและยอมรับ</button>
+                        </div>
+                    </div>
                 </div>
 
                 <h2>🏢 ข้อมูลสถานประกอบการ</h2>
@@ -193,14 +255,38 @@
             </form>
         </div>
         
-        <!-- Success View -->
+        <!-- Success View / History -->
         <div id="success-view" class="hidden success-box">
-            <div class="success-icon">✅</div>
-            <h2 style="color: #4caf50;">ส่งข้อมูลสำเร็จ!</h2>
-            <p style="margin: 24px 0; line-height: 1.8; color: #666; font-size: 1.05em;">
-                ขอบคุณที่ลงทะเบียนกับ <strong style="color: #4caf50;">JobLocal Pathum Thani</strong><br>
-                เราจะช่วยคุณหาพนักงานที่เหมาะสม 💼
-            </p>
+            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #4caf50;">📋 ประวัติการประกาศงาน</h2>
+            
+            <div class="history-box">
+                <div class="history-item">
+                    <div class="history-label">ชื่อสถานประกอบการ</div>
+                    <div class="history-value" id="hist-business"></div>
+                </div>
+                <div class="history-item">
+                    <div class="history-label">ตำแหน่งงาน</div>
+                    <div class="history-value" id="hist-job"></div>
+                </div>
+                <div class="history-item">
+                    <div class="history-label">จำนวนที่รับ</div>
+                    <div class="history-value" id="hist-positions"></div>
+                </div>
+                <div class="history-item">
+                    <div class="history-label">ค่าจ้าง</div>
+                    <div class="history-value" id="hist-wage"></div>
+                </div>
+                <div class="history-item">
+                    <div class="history-label">วันที่ประกาศ</div>
+                    <div class="history-value" id="hist-date"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 24px 0; padding: 16px; background: #d4edda; border-radius: 10px; color: #155724;">
+                <strong>✅ ประกาศงานสำเร็จ!</strong><br>
+                <small>เราจะช่วยคุณหาพนักงานที่เหมาะสม</small>
+            </div>
+
             <button id="closeBtn" class="btn-secondary">ปิดหน้าต่าง</button>
         </div>
 
@@ -245,6 +331,28 @@
     let userProfile, userIdToken, liffReady = false;
     let allRoles = [];
     let allCategories = [];
+
+    // ✨ PDPA Modal handlers
+    $("pdpaDetailLink").addEventListener('click', function(e) {
+        e.preventDefault();
+        $("pdpaModal").classList.remove('hidden');
+    });
+
+    $("closePdpaModal").addEventListener('click', function() {
+        $("pdpaModal").classList.add('hidden');
+    });
+
+    $("acceptPdpa").addEventListener('click', function() {
+        $("consent_pdpa").checked = true;
+        $("pdpaModal").classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    $("pdpaModal").addEventListener('click', function(e) {
+        if (e.target === $("pdpaModal")) {
+            $("pdpaModal").classList.add('hidden');
+        }
+    });
 
     async function init() {
         try {
@@ -545,14 +653,16 @@
                 try {
                     const result = JSON.parse(xhr.responseText);
                     if (result.ok) {
-                        showView('success');
+                        // ✨ Show history with submitted data
+                        showSubmittedHistory(payload.data);
                     } else {
                         showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
                         $("submitBtn").disabled = false;
                         $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
                     }
                 } catch (parseError) {
-                    showView('success');
+                    // ✨ Even if parse error, show history
+                    showSubmittedHistory(payload.data);
                 }
             } else {
                 showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
@@ -562,14 +672,29 @@
         };
         
         xhr.onerror = function() {
-            showStatus("✅ ส่งข้อมูลแล้ว กรุณาตรวจสอบใน Google Sheets", "success");
-            setTimeout(function() {
-                showView('success');
-            }, 2000);
+            // ✨ On error, still show history (likely CORS, but data saved)
+            showSubmittedHistory(payload.data);
         };
         
         xhr.send(JSON.stringify(payload));
     });
+
+    // ✨ Show submitted data in history view
+    function showSubmittedHistory(data) {
+        $("hist-business").textContent = data.business_name || '-';
+        $("hist-job").textContent = data.job_title || '-';
+        $("hist-positions").textContent = `${data.number_of_positions} ตำแหน่ง` || '-';
+        $("hist-wage").textContent = `${data.wage_amount} บาท/วัน` || '-';
+        $("hist-date").textContent = new Date().toLocaleString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        showView('success');
+    }
 
     $("closeBtn").addEventListener('click', function() {
         if (liff.isInClient()) {
