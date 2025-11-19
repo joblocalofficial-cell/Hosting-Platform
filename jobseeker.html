@@ -16,11 +16,13 @@
         #uid { font-size: 0.75em; color: #999; }
         
         h2 { font-size: 1.4em; color: #333; margin: 24px 0 16px; border-left: 5px solid #17a2b8; padding-left: 12px; font-weight: 700; }
-        .form-group { margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; position: relative; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.9em; }
         
         input, select, textarea { width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; transition: all 0.3s; background: #fafafa; font-family: inherit; }
         input:focus, select:focus, textarea:focus { border-color: #17a2b8; outline: none; box-shadow: 0 0 0 4px rgba(23,162,184,0.1); background: #fff; }
+        
+        input[type="file"] { background: white; cursor: pointer; padding: 8px; }
         
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
@@ -34,6 +36,9 @@
         button:active:enabled { transform: translateY(0); }
         button:disabled { background: linear-gradient(135deg, #8ad3db 0%, #70c7d0 100%); cursor: not-allowed; box-shadow: none; }
         
+        .btn-remove { background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 8px; width: auto; }
+        .btn-remove:hover { background: #c82333; }
+        
         .status { margin-top: 12px; font-size: 0.9em; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; }
         .status.success { background: #d4edda; color: #155724; }
         .status.error { background: #f8d7da; color: #721c24; }
@@ -44,7 +49,6 @@
         
         .success-box { text-align: center; padding: 40px 20px; }
         .success-box h2 { border: none; text-align: center; margin: 0 0 20px; }
-        .success-icon { font-size: 4em; margin-bottom: 20px; }
         
         .btn-secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); box-shadow: 0 4px 12px rgba(108,117,125,0.3); }
         .btn-secondary:hover:enabled { box-shadow: 0 6px 20px rgba(108,117,125,0.4); }
@@ -69,13 +73,39 @@
         .btn-accept { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 14px 24px; border: none; border-radius: 10px; font-size: 1.05em; font-weight: 600; cursor: pointer; width: 100%; }
         .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(23,162,184,0.4); }
         
-        /* Recommended roles styling */
-        .recommended-box { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 2px solid #ffc107; padding: 16px; border-radius: 12px; margin: 16px 0; }
-        .recommended-box h3 { margin: 0 0 12px; color: #856404; font-size: 1.1em; }
-        .role-item { background: white; padding: 12px; margin: 8px 0; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
-        .role-item:hover { border-color: #17a2b8; transform: translateX(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .role-item strong { color: #17a2b8; display: block; margin-bottom: 4px; }
-        .role-item small { color: #666; }
+        /* Autocomplete styles */
+        .autocomplete-wrapper { position: relative; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.1em; pointer-events: none; }
+        input.with-icon { padding-left: 42px; }
+        
+        .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #17a2b8; border-radius: 10px; margin-top: 4px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000; }
+        
+        .autocomplete-item { padding: 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: all 0.2s; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: #e3f2fd; }
+        
+        .job-title { font-weight: 600; color: #333; font-size: 1.05em; margin-bottom: 6px; }
+        .job-meta { display: flex; gap: 16px; font-size: 0.85em; color: #666; flex-wrap: wrap; }
+        .job-meta span { display: flex; align-items: center; gap: 4px; }
+        
+        .no-results { padding: 24px; text-align: center; color: #999; }
+        .no-results-icon { font-size: 2em; margin-bottom: 8px; }
+        
+        .selected-badge { display: inline-block; background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; margin-top: 8px; }
+        
+        .wage-info { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 12px; border-radius: 8px; margin-top: 8px; border: 2px solid #ffc107; }
+        .wage-info strong { color: #856404; }
+        
+        /* File preview styles */
+        .file-preview { margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #dee2e6; }
+        .file-preview img { max-width: 100%; max-height: 200px; border-radius: 8px; display: block; margin-bottom: 8px; }
+        .file-info { color: #666; font-size: 0.9em; margin-bottom: 8px; }
+        
+        .history-box { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+        .history-item { padding: 12px 0; border-bottom: 1px solid #e9ecef; }
+        .history-item:last-child { border-bottom: none; }
+        .history-label { font-weight: 600; color: #495057; margin-bottom: 4px; }
+        .history-value { color: #6c757d; }
     </style>
 </head>
 <body>
@@ -98,11 +128,11 @@
                     </label>
                 </div>
 
-                <!-- PDPA Detail Modal -->
+                <!-- PDPA Modal (same as before) -->
                 <div id="pdpaModal" class="modal hidden">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3>📋 นโยบายความเป็นส่วนตัว (PDPA)</h3>
+                            <h3>นโยบายความเป็นส่วนตัว (PDPA)</h3>
                             <button type="button" id="closePdpaModal" class="close-btn">&times;</button>
                         </div>
                         <div class="modal-body">
@@ -137,12 +167,12 @@
                             <p>ข้าพเจ้ารับทราบและเข้าใจเงื่อนไขดังกล่าว และยินยอมให้เก็บ รวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตามวัตถุประสงค์ข้างต้น</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" id="acceptPdpa" class="btn-accept">✓ เข้าใจและยอมรับ</button>
+                            <button type="button" id="acceptPdpa" class="btn-accept">เข้าใจและยอมรับ</button>
                         </div>
                     </div>
                 </div>
 
-                <h2>👤 ข้อมูลส่วนตัว</h2>
+                <h2>ข้อมูลส่วนตัว</h2>
                 
                 <div class="form-group">
                     <label for="full_name">ชื่อ-นามสกุล *</label>
@@ -169,7 +199,7 @@
                 <div class="form-group">
                     <label for="education">ระดับการศึกษา *</label>
                     <select id="education" name="education" required>
-                        <option value="">--- เลือกระดับการศึกษา ---</option>
+                        <option value="">เลือกระดับการศึกษา</option>
                         <option value="ต่ำกว่า ม.6">ต่ำกว่า ม.6</option>
                         <option value="ม.6 / ปวช.">ม.6 / ปวช.</option>
                         <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
@@ -181,7 +211,7 @@
                 <div class="form-group">
                     <label for="district">อำเภอที่อยู่ (ปทุมธานี) *</label>
                     <select id="district" name="district" required>
-                        <option value="">--- เลือกอำเภอ ---</option>
+                        <option value="">เลือกอำเภอ</option>
                         <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
                         <option value="คลองหลวง">คลองหลวง</option>
                         <option value="ธัญบุรี">ธัญบุรี</option>
@@ -192,12 +222,36 @@
                     </select>
                 </div>
 
-                <h2>💼 ประสบการณ์และทักษะ</h2>
+                <h2>เอกสารเพิ่มเติม</h2>
+
+                <div class="form-group">
+                    <label for="selfie_photo">ภาพถ่ายตนเอง</label>
+                    <input id="selfie_photo" name="selfie_photo" type="file" accept="image/jpeg,image/png,image/jpg">
+                    <div class="hint">ไฟล์ JPG หรือ PNG ขนาดไม่เกิน 5 MB (ไม่บังคับ)</div>
+                    
+                    <div id="selfie_preview" class="file-preview hidden">
+                        <img id="selfie_preview_img" alt="Preview">
+                        <button type="button" id="remove_selfie" class="btn-remove">ลบรูป</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="certificate">ใบรับรอง / ผลงาน</label>
+                    <input id="certificate" name="certificate" type="file" accept="image/jpeg,image/png,image/jpg,application/pdf">
+                    <div class="hint">ไฟล์ JPG, PNG หรือ PDF ขนาดไม่เกิน 5 MB (ไม่บังคับ)</div>
+                    
+                    <div id="cert_preview" class="file-preview hidden">
+                        <div id="cert_preview_content" class="file-info"></div>
+                        <button type="button" id="remove_cert" class="btn-remove">ลบไฟล์</button>
+                    </div>
+                </div>
+
+                <h2>ประสบการณ์และทักษะ</h2>
 
                 <div class="form-group">
                     <label for="work_experience">ประสบการณ์ทำงาน *</label>
                     <select id="work_experience" name="work_experience" required>
-                        <option value="">--- เลือก ---</option>
+                        <option value="">เลือก</option>
                         <option value="ไม่มีประสบการณ์">ไม่มีประสบการณ์</option>
                         <option value="น้อยกว่า 1 ปี">น้อยกว่า 1 ปี</option>
                         <option value="1-3 ปี">1-3 ปี</option>
@@ -212,32 +266,34 @@
                     <div class="hint">อธิบายทักษะหรือความสามารถของคุณ</div>
                 </div>
 
-                <h2>🎯 งานที่ต้องการ</h2>
+                <h2>งานที่ต้องการ</h2>
 
-                <!-- ✨ แนะนำตำแหน่งงาน -->
-                <div id="recommended-roles" class="recommended-box hidden">
-                    <h3>💡 ตำแหน่งที่แนะนำสำหรับคุณ:</h3>
-                    <div id="recommended-list"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="desired_job">งานที่คุณอยากทำ * <small style="color: #17a2b8;">(เลือกจากตำแหน่งงานในปทุมธานี)</small></label>
+                <div class="form-group autocomplete-wrapper">
+                    <label for="desired_job">งานที่คุณอยากทำ *</label>
+                    <span class="search-icon">🔍</span>
                     <input 
                         id="desired_job" 
                         name="desired_job" 
-                        list="job-suggestions"
-                        placeholder="พิมพ์เพื่อค้นหา เช่น 'บริการ', 'ร้านอาหาร', 'ท่องเที่ยว'"
+                        class="with-icon"
+                        placeholder="ค้นหางานที่ต้องการ เช่น 'บริการ', 'ร้านอาหาร'"
                         required
                         autocomplete="off"
                     >
-                    <datalist id="job-suggestions"></datalist>
-                    <div id="selected-role-info" class="hint hidden" style="background: #e3f2fd; padding: 8px; border-radius: 6px; margin-top: 8px;"></div>
+                    
+                    <!-- Autocomplete Dropdown -->
+                    <div id="autocomplete_dropdown" class="autocomplete-dropdown hidden"></div>
+                    
+                    <!-- Selected job info -->
+                    <div id="selected_job_info" class="hidden">
+                        <div class="selected-badge">✓ เลือกแล้ว</div>
+                        <div id="wage_info" class="wage-info hidden"></div>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="availability">ความพร้อมในการทำงาน *</label>
                     <select id="availability" name="availability" required>
-                        <option value="">--- เลือก ---</option>
+                        <option value="">เลือก</option>
                         <option value="เริ่มงานได้ทันที">เริ่มงานได้ทันที</option>
                         <option value="ภายใน 1 สัปดาห์">ภายใน 1 สัปดาห์</option>
                         <option value="ภายใน 1 เดือน">ภายใน 1 เดือน</option>
@@ -248,7 +304,7 @@
                 <div class="form-group">
                     <label for="work_type">รูปแบบงานที่ต้องการ *</label>
                     <select id="work_type" name="work_type" required>
-                        <option value="">--- เลือก ---</option>
+                        <option value="">เลือก</option>
                         <option value="งานประจำ">งานประจำ (Full-time)</option>
                         <option value="งานพาร์ทไทม์">งานพาร์ทไทม์ (Part-time)</option>
                         <option value="งานรายวัน">งานรายวัน</option>
@@ -258,7 +314,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="description_note">คำอธิบายเพิ่มเติม (ถ้ามี)</label>
+                    <label for="description_note">คำอธิบายเพิ่มเติม</label>
                     <textarea id="description_note" name="description_note" rows="3" placeholder="เช่น เป้าหมายในการทำงาน, จุดเด่นของคุณ, สิ่งที่คุณสนใจ"></textarea>
                 </div>
 
@@ -270,33 +326,33 @@
         </div>
         
         <div id="success-view" class="hidden success-box">
-            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #17a2b8;">📋 ประวัติการสมัครงาน</h2>
+            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #17a2b8;">ประวัติการสมัครงาน</h2>
             
-            <div class="history-box" style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
-                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">ชื่อ-นามสกุล</div>
-                    <div class="history-value" style="color: #6c757d;" id="hist-fullname"></div>
+            <div class="history-box">
+                <div class="history-item">
+                    <div class="history-label">ชื่อ-นามสกุล</div>
+                    <div class="history-value" id="hist-fullname"></div>
                 </div>
-                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
-                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">งานที่ต้องการ</div>
-                    <div class="history-value" style="color: #6c757d;" id="hist-job"></div>
+                <div class="history-item">
+                    <div class="history-label">งานที่ต้องการ</div>
+                    <div class="history-value" id="hist-job"></div>
                 </div>
-                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
-                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">ประสบการณ์</div>
-                    <div class="history-value" style="color: #6c757d;" id="hist-exp"></div>
+                <div class="history-item">
+                    <div class="history-label">ประสบการณ์</div>
+                    <div class="history-value" id="hist-exp"></div>
                 </div>
-                <div class="history-item" style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
-                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">ทักษะ</div>
-                    <div class="history-value" style="color: #6c757d;" id="hist-skills"></div>
+                <div class="history-item">
+                    <div class="history-label">ทักษะ</div>
+                    <div class="history-value" id="hist-skills"></div>
                 </div>
-                <div class="history-item" style="padding: 12px 0;">
-                    <div class="history-label" style="font-weight: 600; color: #495057; margin-bottom: 4px;">วันที่สมัคร</div>
-                    <div class="history-value" style="color: #6c757d;" id="hist-date"></div>
+                <div class="history-item">
+                    <div class="history-label">วันที่สมัคร</div>
+                    <div class="history-value" id="hist-date"></div>
                 </div>
             </div>
 
             <div style="text-align: center; margin: 24px 0; padding: 16px; background: #d4edda; border-radius: 10px; color: #155724;">
-                <strong>✅ ส่งข้อมูลสำเร็จ!</strong><br>
+                <strong>ส่งข้อมูลสำเร็จ</strong><br>
                 <small>เราจะแจ้งเตือนคุณเมื่อมีงานที่เหมาะสม</small>
             </div>
 
@@ -305,15 +361,18 @@
     </div>
 
     <script>
-    // ✅ Configuration
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHjVXohkdHgboczVBukalqP8RQsgfxg5qBtVJiA_W9E_bPljSgIPt81LA_peuTUCICQ/exec";
+    // Configuration
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxzcCUSWmFM0FUKBS448URffyg8TZnn9-hAkH3qms1gUZSLeAnBMk59In-ATeAS4J8P_Q/exec";
     const LIFF_ID = "2008394776-yGB4gQdv";
     
     const $ = id => document.getElementById(id);
     let userProfile, liffReady = false;
-    let allRoles = []; // Store all roles
+    let allRoles = [];
+    let selectedRole = null;
+    let selfieFile = null;
+    let certFile = null;
 
-    // ✨ PDPA Modal handlers
+    // PDPA Modal handlers
     $("pdpaDetailLink").addEventListener('click', function(e) {
         e.preventDefault();
         $("pdpaModal").classList.remove('hidden');
@@ -328,11 +387,75 @@
         $("pdpaModal").classList.add('hidden');
     });
 
-    // Close modal when clicking outside
     $("pdpaModal").addEventListener('click', function(e) {
         if (e.target === $("pdpaModal")) {
             $("pdpaModal").classList.add('hidden');
         }
+    });
+
+    // File upload handlers
+    $("selfie_photo").addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 5 * 1024 * 1024) {
+            alert('ไฟล์ใหญ่เกินไป ขนาดสูงสุด 5 MB');
+            e.target.value = '';
+            return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            alert('กรุณาเลือกไฟล์รูปภาพ');
+            e.target.value = '';
+            return;
+        }
+        
+        selfieFile = file;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            $("selfie_preview_img").src = event.target.result;
+            $("selfie_preview").classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    $("remove_selfie").addEventListener('click', function() {
+        $("selfie_photo").value = '';
+        selfieFile = null;
+        $("selfie_preview").classList.add('hidden');
+    });
+
+    $("certificate").addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 5 * 1024 * 1024) {
+            alert('ไฟล์ใหญ่เกินไป ขนาดสูงสุด 5 MB');
+            e.target.value = '';
+            return;
+        }
+        
+        certFile = file;
+        
+        const preview = $("cert_preview_content");
+        if (file.type === 'application/pdf') {
+            preview.innerHTML = `📄 ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+        } else {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.innerHTML = `<img src="${event.target.result}" alt="Certificate" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        $("cert_preview").classList.remove('hidden');
+    });
+
+    $("remove_cert").addEventListener('click', function() {
+        $("certificate").value = '';
+        certFile = null;
+        $("cert_preview").classList.add('hidden');
     });
 
     async function init() {
@@ -346,39 +469,34 @@
             userProfile = await liff.getProfile();
             liffReady = true;
 
-            $("hello").textContent = `สวัสดี, ${userProfile.displayName} 👋`;
+            $("hello").textContent = `สวัสดี ${userProfile.displayName}`;
             $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
             if (userProfile.pictureUrl) $("avatar").src = userProfile.pictureUrl;
             
-            $("submitBtn").disabled = false;
-            $("submitBtn").textContent = '✅ ส่งข้อมูล';
-            showStatus("กรุณากรอกข้อมูลเพื่อหางาน", "info");
-            
-            // ✨ Load job roles
             await loadRoles();
             
         } catch (e) {
             console.error("LIFF Error:", e);
-            $("hello").textContent = "❌ เกิดข้อผิดพลาด";
+            $("hello").textContent = "เกิดข้อผิดพลาด";
             $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
     }
 
-    // ✨ Load roles from API
     async function loadRoles() {
         try {
-            showStatus("กำลังโหลดตำแหน่งงาน...", "info");
+            showStatus("กำลังโหลดข้อมูล...", "info");
             const response = await fetch(`${GAS_ENDPOINT}?api=roles`);
             const data = await response.json();
             
             if (data.ok && data.roles) {
                 allRoles = data.roles;
-                updateJobSuggestions(allRoles);
-                showStatus("พร้อมใช้งาน! 🎉", "success");
+                
+                $("submitBtn").disabled = false;
+                $("submitBtn").textContent = 'ส่งข้อมูล';
+                showStatus("พร้อมใช้งาน", "success");
                 setTimeout(() => $("status").classList.add('hidden'), 2000);
             } else {
                 console.error("Failed to load roles:", data.error);
-                // Fallback to default options if API fails
                 useFallbackRoles();
             }
         } catch (e) {
@@ -387,122 +505,139 @@
         }
     }
 
-    // Update datalist with roles
-    function updateJobSuggestions(roles) {
-        const datalist = $("job-suggestions");
-        datalist.innerHTML = '';
-        
-        roles.forEach(role => {
-            const option = document.createElement('option');
-            option.value = role.name_th;
-            option.textContent = `${role.name_th} - ${role.category} (${role.pay_min}-${role.pay_max} บาท/วัน)`;
-            datalist.appendChild(option);
-        });
-    }
-
-    // Fallback roles if API fails
     function useFallbackRoles() {
-        const fallback = [
-            "งานบริการ (เสิร์ฟ/พนักงานต้อนรับ)",
-            "งานขาย",
-            "งานแม่บ้าน/ทำความสะอาด",
-            "งานช่าง/ซ่อมบำรุง",
-            "งานขับรถ/ส่งของ",
-            "งานครัว/ทำอาหาร",
-            "งานทั่วไป/รายวัน",
-            "งานออฟฟิศ/ธุรการ"
-        ];
-        
-        const datalist = $("job-suggestions");
-        datalist.innerHTML = '';
-        fallback.forEach(job => {
-            const option = document.createElement('option');
-            option.value = job;
-            datalist.appendChild(option);
-        });
-        
-        showStatus("โหลดตำแหน่งงานเสร็จสิ้น", "success");
+        allRoles = [];
+        $("submitBtn").disabled = false;
+        $("submitBtn").textContent = 'ส่งข้อมูล';
+        showStatus("โหลดข้อมูลเสร็จสิ้น", "success");
         setTimeout(() => $("status").classList.add('hidden'), 2000);
     }
 
-    // ✨ Show role info when selected
-    $("desired_job").addEventListener('change', function() {
-        const selected = this.value;
-        const role = allRoles.find(r => r.name_th === selected);
-        
-        if (role) {
-            const info = $("selected-role-info");
-            info.innerHTML = `📍 ${role.category} | 💰 ค่าจ้างโดยเฉลี่ย: ${role.pay_min}-${role.pay_max} บาท/วัน`;
-            info.classList.remove('hidden');
-        } else {
-            $("selected-role-info").classList.add('hidden');
-        }
-    });
+    // Autocomplete functionality
+    const desiredJobInput = $("desired_job");
+    const dropdown = $("autocomplete_dropdown");
 
-    // ✨ Smart recommendation after filling skills
-    $("skills").addEventListener('blur', async function() {
-        const skills = this.value.trim();
-        const experience = $("work_experience").value;
+    desiredJobInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim().toLowerCase();
         
-        if (!skills || skills.length < 3) return;
-        if (allRoles.length === 0) return;
-        
-        // Simple client-side matching
-        const keywords = skills.toLowerCase().split(/[,;\s]+/);
-        
-        const scored = allRoles.map(role => {
-            let score = 0;
-            const roleText = `${role.name_th} ${role.category} ${role.skills || ''}`.toLowerCase();
-            
-            keywords.forEach(keyword => {
-                if (keyword.length > 2 && roleText.includes(keyword)) {
-                    score += 5;
-                }
-            });
-            
-            return { ...role, score };
-        });
-        
-        const recommended = scored
-            .filter(r => r.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
-        
-        if (recommended.length > 0) {
-            showRecommendations(recommended);
+        if (query.length < 1) {
+            dropdown.classList.add('hidden');
+            return;
         }
-    });
-
-    // Show recommended roles
-    function showRecommendations(roles) {
-        const container = $("recommended-roles");
-        const list = $("recommended-list");
         
-        container.classList.remove('hidden');
-        list.innerHTML = '';
+        const filtered = allRoles.filter(role => {
+            const searchText = `${role.name_th} ${role.category} ${role.skills || ''}`.toLowerCase();
+            return searchText.includes(query);
+        }).slice(0, 5);
         
-        roles.forEach((role, idx) => {
-            const div = document.createElement('div');
-            div.className = 'role-item';
-            div.innerHTML = `
-                <strong>${idx + 1}. ${role.name_th}</strong>
-                <small>
-                    📍 ${role.category} | 
-                    💰 ${role.pay_min}-${role.pay_max} บาท/วัน
-                </small>
+        if (filtered.length === 0) {
+            dropdown.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">🔍</div>
+                    <div>ไม่พบงานที่ค้นหา</div>
+                    <small>ลองใช้คำค้นหาอื่น</small>
+                </div>
             `;
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.innerHTML = filtered.map(role => `
+                <div class="autocomplete-item" data-role-id="${role.role_id}">
+                    <div class="job-title">${role.name_th}</div>
+                    <div class="job-meta">
+                        <span>${role.category}</span>
+                        <span>฿ ${role.pay_min}-${role.pay_max} บาท/วัน</span>
+                    </div>
+                </div>
+            `).join('');
             
-            div.addEventListener('click', () => {
-                $("desired_job").value = role.name_th;
-                $("desired_job").dispatchEvent(new Event('change'));
-                container.classList.add('hidden');
-                
-                // Scroll to desired_job field
-                $("desired_job").scrollIntoView({ behavior: 'smooth', block: 'center' });
+            dropdown.classList.remove('hidden');
+            
+            // Add click handlers
+            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const roleId = this.dataset.roleId;
+                    selectRole(roleId);
+                });
             });
-            
-            list.appendChild(div);
-        });
+        }
+    });
+
+    function selectRole(roleId) {
+        selectedRole = allRoles.find(r => r.role_id === roleId);
+        if (!selectedRole) return;
+        
+        desiredJobInput.value = selectedRole.name_th;
+        dropdown.classList.add('hidden');
+        
+        $("selected_job_info").classList.remove('hidden');
+        
+        const wageInfo = $("wage_info");
+        wageInfo.innerHTML = `<strong>ค่าจ้างแนะนำ:</strong> ${selectedRole.pay_min}-${selectedRole.pay_max} บาท/วัน<br><small>${selectedRole.category}</small>`;
+        wageInfo.classList.remove('hidden');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!desiredJobInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    async function uploadFile(file, fileType) {
+        try {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                
+                reader.onload = async function(e) {
+                    const base64Data = e.target.result;
+                    
+                    const uploadPayload = {
+                        uploadType: 'file',
+                        userId: userProfile.userId,
+                        fileData: base64Data,
+                        fileName: file.name,
+                        fileType: fileType
+                    };
+                    
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', GAS_ENDPOINT, true);
+                    xhr.setRequestHeader('Content-Type', 'text/plain');
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            try {
+                                const result = JSON.parse(xhr.responseText);
+                                if (result.ok) {
+                                    resolve(result.url);
+                                } else {
+                                    alert(`❌ ${result.error}`);
+                                    resolve(null);
+                                }
+                            } catch (e) {
+                                resolve(null);
+                            }
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    
+                    xhr.onerror = function() {
+                        resolve(null);
+                    };
+                    
+                    xhr.send(JSON.stringify(uploadPayload));
+                };
+                
+                reader.onerror = function() {
+                    resolve(null);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        } catch (error) {
+            console.error('Upload error:', error);
+            return null;
+        }
     }
 
     function showStatus(msg, type = 'info') {
@@ -512,18 +647,51 @@
         s.classList.remove('hidden');
     }
 
-    $("mainForm").addEventListener('submit', function(e) {
+    $("mainForm").addEventListener('submit', async function(e) {
         e.preventDefault();
         if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
 
+        $("submitBtn").disabled = true;
+        $("submitBtn").innerHTML = '<div class="loader"></div>';
+        
+        let selfieUrl = '';
+        let certUrl = '';
+        
+        // Upload files if any
+        if (selfieFile) {
+            showStatus("กำลังอัพโหลดภาพถ่าย...", "info");
+            selfieUrl = await uploadFile(selfieFile, 'selfie');
+            if (!selfieUrl) {
+                showStatus("อัพโหลดภาพถ่ายไม่สำเร็จ", "error");
+                $("submitBtn").disabled = false;
+                $("submitBtn").textContent = 'ลองส่งอีกครั้ง';
+                return;
+            }
+        }
+        
+        if (certFile) {
+            showStatus("กำลังอัพโหลดใบรับรอง...", "info");
+            certUrl = await uploadFile(certFile, 'certificate');
+            if (!certUrl) {
+                showStatus("อัพโหลดใบรับรองไม่สำเร็จ", "error");
+                $("submitBtn").disabled = false;
+                $("submitBtn").textContent = 'ลองส่งอีกครั้ง';
+                return;
+            }
+        }
+
+        showStatus("กำลังส่งข้อมูล...", "info");
+
         const payload = {
             type: "jobseeker",
+            user_type: "jobseeker",
             profile: {
                 userId: userProfile.userId,
                 displayName: userProfile.displayName,
                 pictureUrl: userProfile.pictureUrl || ""
             },
             data: {
+                user_type: "jobseeker",
                 pdpa_consent: $("consent_pdpa").checked ? "on" : "off",
                 full_name: $("full_name").value,
                 age: $("age").value,
@@ -531,18 +699,16 @@
                 email: $("email").value,
                 education: $("education").value,
                 district: $("district").value,
+                selfie_photo: selfieUrl,
                 work_experience: $("work_experience").value,
                 skills: $("skills").value,
+                certificate: certUrl,
                 desired_job: $("desired_job").value,
                 availability: $("availability").value,
                 work_type: $("work_type").value,
                 description_note: $("description_note").value
             }
         };
-
-        $("submitBtn").disabled = true;
-        $("submitBtn").innerHTML = '<div class="loader"></div>';
-        showStatus("กำลังส่งข้อมูล...", "info");
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', GAS_ENDPOINT, true);
@@ -553,33 +719,29 @@
                 try {
                     const result = JSON.parse(xhr.responseText);
                     if (result.ok) {
-                        // ✨ Show history with submitted data
                         showSubmittedHistory(payload.data);
                     } else {
                         showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
                         $("submitBtn").disabled = false;
-                        $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                        $("submitBtn").textContent = 'ลองส่งอีกครั้ง';
                     }
                 } catch (parseError) {
-                    // ✨ Even if parse error, show history
                     showSubmittedHistory(payload.data);
                 }
             } else {
                 showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
                 $("submitBtn").disabled = false;
-                $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                $("submitBtn").textContent = 'ลองส่งอีกครั้ง';
             }
         };
         
         xhr.onerror = function() {
-            // ✨ On error, still show history (likely CORS, but data saved)
             showSubmittedHistory(payload.data);
         };
         
         xhr.send(JSON.stringify(payload));
     });
 
-    // ✨ Show submitted data in history view
     function showSubmittedHistory(data) {
         $("hist-fullname").textContent = data.full_name || '-';
         $("hist-job").textContent = data.desired_job || '-';
