@@ -1,39 +1,38 @@
-Employer 
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobLocal - ฟอร์มนายจ้าง</title>
+    <title>JobLocal - ????????????</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Sukhumvit Set', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); min-height: 100vh; }
+        body { font-family: 'Sukhumvit Set', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); min-height: 100vh; }
         .container { background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 24px; }
         
         header { display: flex; gap: 15px; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0; }
-        #avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #4caf50; background: #e8f5e9; }
-        #hello { font-size: 1.2em; font-weight: 700; color: #4caf50; margin-bottom: 4px; }
+        #avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #0066cc; background: #e3f2fd; }
+        #hello { font-size: 1.2em; font-weight: 700; color: #0066cc; margin-bottom: 4px; }
         #uid { font-size: 0.75em; color: #999; }
         
-        h2 { font-size: 1.4em; color: #333; margin: 24px 0 16px; border-left: 5px solid #4caf50; padding-left: 12px; font-weight: 700; }
-        .form-group { margin-bottom: 20px; }
+        h2 { font-size: 1.4em; color: #333; margin: 24px 0 16px; border-left: 5px solid #0066cc; padding-left: 12px; font-weight: 700; }
+        .form-group { margin-bottom: 20px; position: relative; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.9em; }
         
         input, select, textarea { width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; transition: all 0.3s; background: #fafafa; font-family: inherit; }
-        input:focus, select:focus, textarea:focus { border-color: #4caf50; outline: none; box-shadow: 0 0 0 4px rgba(76,175,80,0.1); background: #fff; }
+        input:focus, select:focus, textarea:focus { border-color: #0066cc; outline: none; box-shadow: 0 0 0 4px rgba(0,102,204,0.1); background: #fff; }
         
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
         
-        .pdpa-box { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #4caf50; padding: 16px; border-radius: 12px; margin-bottom: 24px; }
+        .pdpa-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #0066cc; padding: 16px; border-radius: 12px; margin-bottom: 24px; }
         .pdpa-box label { font-weight: 500; display: flex; align-items: flex-start; margin: 0; cursor: pointer; }
         .pdpa-box input[type="checkbox"] { width: 20px; height: 20px; margin-right: 12px; margin-top: 2px; cursor: pointer; }
         
-        button { background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: #fff; padding: 16px 24px; border: none; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(76,175,80,0.3); }
-        button:hover:enabled { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(76,175,80,0.4); }
+        button { background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); color: #fff; padding: 16px 24px; border: none; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,102,204,0.3); }
+        button:hover:enabled { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,102,204,0.4); }
         button:active:enabled { transform: translateY(0); }
-        button:disabled { background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%); cursor: not-allowed; box-shadow: none; }
+        button:disabled { background: linear-gradient(135deg, #80b3e6 0%, #6699cc 100%); cursor: not-allowed; box-shadow: none; }
         
         .status { margin-top: 12px; font-size: 0.9em; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; }
         .status.success { background: #d4edda; color: #155724; }
@@ -45,7 +44,52 @@ Employer
         
         .success-box { text-align: center; padding: 40px 20px; }
         .success-box h2 { border: none; text-align: center; margin: 0 0 20px; }
-        .success-icon { font-size: 4em; margin-bottom: 20px; }
+        
+        .btn-secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); box-shadow: 0 4px 12px rgba(108,117,125,0.3); }
+        .btn-secondary:hover:enabled { box-shadow: 0 6px 20px rgba(108,117,125,0.4); }
+        
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #0066cc; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Modal styles */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { padding: 20px 24px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; color: #0066cc; font-size: 1.3em; }
+        .close-btn { background: none; border: none; font-size: 2em; color: #999; cursor: pointer; padding: 0; width: 32px; height: 32px; line-height: 1; }
+        .close-btn:hover { color: #333; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-body h4 { color: #0066cc; margin: 20px 0 12px; font-size: 1.1em; }
+        .modal-body p { line-height: 1.8; color: #555; margin-bottom: 16px; }
+        .modal-body ul { margin: 12px 0 16px 20px; }
+        .modal-body li { line-height: 1.8; color: #555; margin-bottom: 8px; }
+        .modal-body em { color: #666; }
+        .modal-footer { padding: 16px 24px; border-top: 2px solid #f0f0f0; }
+        .btn-accept { background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); color: white; padding: 14px 24px; border: none; border-radius: 10px; font-size: 1.05em; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,102,204,0.4); }
+        
+        /* Autocomplete styles */
+        .autocomplete-wrapper { position: relative; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.1em; pointer-events: none; }
+        input.with-icon { padding-left: 42px; }
+        
+        .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #0066cc; border-radius: 10px; margin-top: 4px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000; }
+        
+        .autocomplete-item { padding: 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: all 0.2s; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: #e3f2fd; }
+        
+        .job-title { font-weight: 600; color: #333; font-size: 1.05em; margin-bottom: 6px; }
+        .job-meta { display: flex; gap: 16px; font-size: 0.85em; color: #666; flex-wrap: wrap; }
+        .job-meta span { display: flex; align-items: center; gap: 4px; }
+        
+        .no-results { padding: 24px; text-align: center; color: #999; }
+        .no-results-icon { font-size: 2em; margin-bottom: 8px; }
+        
+        .selected-badge { display: inline-block; background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; margin-top: 8px; }
+        
+        .wage-info { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 12px; border-radius: 8px; margin-top: 8px; border: 2px solid #ffc107; }
+        .wage-info strong { color: #856404; }
         
         .history-box { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
         .history-item { padding: 12px 0; border-bottom: 1px solid #e9ecef; }
@@ -53,200 +97,221 @@ Employer
         .history-label { font-weight: 600; color: #495057; margin-bottom: 4px; }
         .history-value { color: #6c757d; }
         
-        .btn-secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); box-shadow: 0 4px 12px rgba(108,117,125,0.3); }
-        .btn-secondary:hover:enabled { box-shadow: 0 6px 20px rgba(108,117,125,0.4); }
-        
-        .btn-warning { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); box-shadow: 0 4px 12px rgba(255,152,0,0.3); margin-bottom: 12px; }
-        .btn-warning:hover:enabled { box-shadow: 0 6px 20px rgba(255,152,0,0.4); }
-        
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4caf50; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Modal styles */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; overflow-y: auto; }
-        .modal-content { background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        .modal-header { padding: 20px 24px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { margin: 0; color: #4caf50; font-size: 1.3em; }
-        .close-btn { background: none; border: none; font-size: 2em; color: #999; cursor: pointer; padding: 0; width: 32px; height: 32px; line-height: 1; }
-        .close-btn:hover { color: #333; }
-        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
-        .modal-body h4 { color: #4caf50; margin: 20px 0 12px; font-size: 1.1em; }
-        .modal-body p { line-height: 1.8; color: #555; margin-bottom: 16px; }
-        .modal-body ul { margin: 12px 0 16px 20px; }
-        .modal-body li { line-height: 1.8; color: #555; margin-bottom: 8px; }
-        .modal-body em { color: #666; }
-        .modal-footer { padding: 16px 24px; border-top: 2px solid #f0f0f0; }
-        .btn-accept { background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; padding: 14px 24px; border: none; border-radius: 10px; font-size: 1.05em; font-weight: 600; cursor: pointer; width: 100%; }
-        .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(76,175,80,0.4); }
-        
-        /* Wage suggestion box */
-        .wage-suggestion { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 12px; border-radius: 8px; margin-top: 8px; border: 2px solid #ffc107; }
-        .wage-suggestion strong { color: #856404; }
+        .conditional-field { display: none; }
+        .conditional-field.visible { display: block; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e8f5e9' width='64' height='64'/%3E%3C/svg%3E" alt="Avatar">
+            <img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e3f2fd' width='64' height='64'/%3E%3C/svg%3E" alt="Avatar">
             <div style="flex: 1;">
-                <div id="hello">กำลังเชื่อมต่อ LINE...</div>
-                <small id="uid">กำลังโหลด...</small>
+                <div id="hello">?????????????? LINE...</div>
+                <small id="uid">?????????...</small>
             </div>
         </header>
 
-        <!-- Form View -->
-        <div id="form-view" class="hidden">
+        <div id="form-view">
             <form id="mainForm">
                 <div class="pdpa-box">
                     <label>
                         <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
-                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล 
-                        <a href="#" id="pdpaDetailLink" style="color: #4caf50; text-decoration: underline; margin-left: 8px;">อ่านเพิ่มเติม</a></span>
+                        <span><strong>?????? PDPA</strong> - ????????????????????????????????????????????? ?.?.?. ??????????????????????? 
+                        <a href="#" id="pdpaDetailLink" style="color: #0066cc; text-decoration: underline; margin-left: 8px;">?????????????</a></span>
                     </label>
                 </div>
 
-                <!-- PDPA Detail Modal -->
+                <!-- PDPA Modal -->
                 <div id="pdpaModal" class="modal hidden">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3>📋 นโยบายความเป็นส่วนตัว (PDPA)</h3>
+                            <h3>????????????????????? (PDPA)</h3>
                             <button type="button" id="closePdpaModal" class="close-btn">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <p><strong>ข้าพเจ้าขอให้ความยินยอมในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</strong></p>
+                            <p><strong>?????????????????????????????????????? ??? ????????????????????????? ??????????????????????????????????????? ?.?. 2562</strong></p>
                             
-                            <h4>1. วัตถุประสงค์ของการเก็บข้อมูล</h4>
+                            <h4>1. ????????????????????????????</h4>
                             <ul>
-                                <li>การจับคู่งานระหว่างผู้หางานและผู้จ้างงานภายในจังหวัดปทุมธานี</li>
-                                <li>การติดต่อ แจ้งข้อมูลการสมัครงาน ผลการจับคู่ หรือข้อเสนองาน</li>
-                                <li>การวิเคราะห์ข้อมูลเชิงสถิติ เพื่อพัฒนาระบบและบริการของโครงการ JobLocal</li>
-                                <li>การยืนยันตัวตน (KYC) เพื่อความปลอดภัยในการจับคู่และการจ้างงาน</li>
+                                <li>????????????????????????????????????????????????????????????</li>
+                                <li>????????? ???????????????????? ?????????????????????</li>
+                                <li>??????????????????????????? ????????????????????????????????? JobLocal</li>
                             </ul>
                             
-                            <h4>2. ประเภทข้อมูลส่วนบุคคลที่เก็บรวบรวม</h4>
-                            <p>ชื่อ-นามสกุล เบอร์โทรศัพท์ อีเมล ที่อยู่ อายุ เพศ ข้อมูลการศึกษา ประสบการณ์ทำงาน ทักษะ รูปถ่าย และเอกสารยืนยันตัวตน</p>
+                            <h4>2. ??????????????????????????????????</h4>
+                            <p>??????????/?????? ????????????? ????????????? LINE ID ???????????????? ???????????????????????</p>
                             
-                            <h4>3. การเปิดเผยข้อมูลแก่บุคคลภายนอก</h4>
-                            <p>ข้อมูลจะถูกเปิดเผยเฉพาะกับ:</p>
+                            <h4>3. ??????????????????????????????</h4>
+                            <p>??????????????????????????:</p>
                             <ul>
-                                <li>ผู้ว่าจ้างที่ลงทะเบียนภายในระบบ JobLocal</li>
-                                <li>หน่วยงานภาครัฐหรือองค์กรพันธมิตรที่ร่วมโครงการ</li>
+                                <li>????????????????????????????? JobLocal</li>
+                                <li>??????????????????????????????????????????????</li>
                             </ul>
-                            <p><em>จะไม่เปิดเผยข้อมูลเพื่อการค้า หรือส่งต่อให้บุคคลที่สามโดยไม่ได้รับความยินยอม</em></p>
+                            <p><em>????????????????????????????? ??????????????????????????????????????????????</em></p>
                             
-                            <h4>4. สิทธิของเจ้าของข้อมูล</h4>
-                            <p>ท่านมีสิทธิในการเข้าถึงข้อมูล ขอแก้ไขข้อมูล และถอนความยินยอมได้ทุกเมื่อ โดยติดต่อทีมงาน JobLocal Pathum Thani ผ่าน LINE Official Account</p>
+                            <h4>4. ?????????????????????</h4>
+                            <p>????????????????????????????? ????????????? ??????????????????????????? ??????????????? JobLocal Pathum Thani</p>
                             
-                            <h4>5. ระยะเวลาการเก็บรักษาข้อมูล</h4>
-                            <p>ข้อมูลจะถูกจัดเก็บไว้นานไม่เกิน <strong>2 ปี</strong> นับจากวันที่ส่งแบบฟอร์ม หรือจนกว่าจะมีการขอถอนข้อมูล</p>
-                            
-                            <h4>6. การให้ความยินยอม</h4>
-                            <p>ข้าพเจ้ารับทราบและเข้าใจเงื่อนไขดังกล่าว และยินยอมให้เก็บ รวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตามวัตถุประสงค์ข้างต้น</p>
+                            <h4>5. ??????????????????????????</h4>
+                            <p>??????????????????????????????? <strong>2 ??</strong> ??????????????????????? ????????????????????????????</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" id="acceptPdpa" class="btn-accept">✓ เข้าใจและยอมรับ</button>
+                            <button type="button" id="acceptPdpa" class="btn-accept">???????????????</button>
                         </div>
                     </div>
                 </div>
 
-                <h2>🏢 ข้อมูลสถานประกอบการ</h2>
+                <h2>????????????????</h2>
                 
                 <div class="form-group">
-                    <label for="business_name">ชื่อสถานประกอบการ / ร้าน *</label>
-                    <input id="business_name" name="business_name" placeholder="ระบุชื่อธุรกิจหรือร้านของคุณ" required>
+                    <label for="user_type">???????????????? *</label>
+                    <select id="user_type" name="user_type" required>
+                        <option value="">???????????</option>
+                        <option value="??????/????????">??????/????????</option>
+                        <option value="?????????">?????????</option>
+                        <option value="??????">??????</option>
+                        <option value="???????????">???????????</option>
+                        <option value="????????????">????????????</option>
+                        <option value="?????">?????</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="contact_person">ชื่อผู้ติดต่อ *</label>
-                    <input id="contact_person" name="contact_person" placeholder="ชื่อ-นามสกุลของคุณ" required>
+                    <label for="company_or_org" id="company_label">??????????/?????? *</label>
+                    <input id="company_or_org" name="company_or_org" placeholder="????????" required>
                 </div>
-
+                
                 <div class="row">
                     <div class="form-group">
-                        <label for="phone">เบอร์โทรศัพท์ *</label>
-                        <input id="phone" name="phone" type="tel" pattern="[0-9]{10}" placeholder="0812345678" required>
-                        <div class="hint">กรอก 10 หลัก</div>
+                        <label for="contact_person">????????????? *</label>
+                        <input id="contact_person" name="contact_person" placeholder="????-???????" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">อีเมล</label>
-                        <input id="email" name="email" type="email" placeholder="example@email.com">
+                        <label for="contact_phone">????????????? *</label>
+                        <input id="contact_phone" name="contact_phone" type="tel" pattern="[0-9]{10}" placeholder="0812345678" required>
+                        <div class="hint">???? 10 ????</div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="district">อำเภอที่ตั้งธุรกิจ (ปทุมธานี) *</label>
-                    <select id="district" name="district" required>
-                        <option value="">--- เลือกอำเภอ ---</option>
-                        <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
-                        <option value="คลองหลวง">คลองหลวง</option>
-                        <option value="ธัญบุรี">ธัญบุรี</option>
-                        <option value="หนองเสือ">หนองเสือ</option>
-                        <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
-                        <option value="ลำลูกกา">ลำลูกกา</option>
-                        <option value="สามโคก">สามโคก</option>
-                    </select>
-                </div>
+                <h2>?????????</h2>
 
-                <h2>💼 รายละเอียดงาน</h2>
-
-                <div class="form-group">
-                    <label for="job_category">หมวดหมู่งาน *</label>
-                    <select id="job_category" name="job_category" required>
-                        <option value="">--- กำลังโหลด ---</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="job_title_select">ตำแหน่งงาน * <small style="color: #4caf50;">(เลือกจากตำแหน่งในปทุมธานี)</small></label>
-                    <select id="job_title_select" name="job_title" required>
-                        <option value="">--- กำลังโหลด ---</option>
-                    </select>
+                <div class="form-group autocomplete-wrapper">
+                    <label for="job_title">?????????? *</label>
+                    <span class="search-icon">??</span>
+                    <input 
+                        id="job_title" 
+                        name="job_title" 
+                        class="with-icon"
+                        placeholder="??????????????? ???? '?????????????', '??????????'"
+                        required
+                        autocomplete="off"
+                    >
+                    <div class="hint">???????????????? ?????????</div>
                     
-                    <!-- Wage suggestion -->
-                    <div id="wage-suggestion" class="wage-suggestion hidden">
-                        💰 <strong>ค่าจ้างแนะนำ:</strong> <span id="wage-range"></span> บาท/วัน
-                        <br><small>คุณสามารถปรับค่าจ้างได้ตามความเหมาะสม</small>
-                    </div>
-                </div>
-
-                <!-- Show when "อื่นๆ" is selected -->
-                <div id="job_title_other_group" class="form-group hidden">
-                    <label for="job_title_other">ระบุตำแหน่งงาน *</label>
-                    <input id="job_title_other" name="job_title_other" placeholder="ระบุตำแหน่งงานที่ต้องการ">
-                </div>
-
-                <div class="form-group">
-                    <label for="job_description">รายละเอียดงาน *</label>
-                    <textarea id="job_description" name="job_description" rows="4" placeholder="อธิบายลักษณะงาน หน้าที่ความรับผิดชอบ หรือสิ่งที่ต้องการจากพนักงาน" required></textarea>
-                </div>
-
-                <div class="row">
-                    <div class="form-group">
-                        <label for="number_of_positions">จำนวนที่รับ *</label>
-                        <input id="number_of_positions" name="number_of_positions" type="number" min="1" max="99" placeholder="1" required>
-                        <div class="hint">ตำแหน่ง</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="wage_amount">ค่าจ้าง (บาท/วัน) *</label>
-                        <input id="wage_amount" name="wage_amount" type="number" min="300" max="3000" placeholder="500" required>
+                    <!-- Autocomplete Dropdown -->
+                    <div id="autocomplete_dropdown" class="autocomplete-dropdown hidden"></div>
+                    
+                    <!-- Selected job info -->
+                    <div id="selected_job_info" class="hidden">
+                        <div class="selected-badge">? ?????????</div>
+                        <div id="wage_info" class="wage-info hidden"></div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="work_schedule">ระยะเวลาทำงาน *</label>
-                    <select id="work_schedule" name="work_schedule" required>
-                        <option value="">--- เลือก ---</option>
-                        <option value="งานประจำ (Full-time)">งานประจำ (Full-time)</option>
-                        <option value="งานพาร์ทไทม์ (Part-time)">งานพาร์ทไทม์ (Part-time)</option>
-                        <option value="งานรายวัน">งานรายวัน</option>
-                        <option value="งานชั่วคราว/โปรเจค">งานชั่วคราว/โปรเจค</option>
-                        <option value="งานฟรีแลนซ์">งานฟรีแลนซ์</option>
+                    <label for="job_description">????????????????????????????????? *</label>
+                    <textarea id="job_description" name="job_description" rows="6" placeholder="?????????????:&#10;- ????????????????????&#10;- ?????????&#10;&#10;?????????????????:&#10;- ???????????????&#10;- ??????????" required></textarea>
+                    <div class="hint" id="skills_hint">????????????????????????????????????????????????</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="education_required">??????????????????????? *</label>
+                    <select id="education_required" name="education_required" required>
+                        <option value="">??????????????????</option>
+                        <option value="????????">????????</option>
+                        <option value="??????? ?.6">??????? ?.6</option>
+                        <option value="?.6 / ???.">?.6 / ???.</option>
+                        <option value="???. / ?????????">???. / ?????????</option>
+                        <option value="?????????">?????????</option>
+                        <option value="????????????????">????????????????</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="additional_info">ข้อมูลเพิ่มเติม (ถ้ามี)</label>
-                    <textarea id="additional_info" name="additional_info" rows="3" placeholder="เช่น เวลาทำงาน, สวัสดิการ, วันหยุด, ทักษะที่ต้องการ"></textarea>
+                    <label for="work_type">????????? *</label>
+                    <select id="work_type" name="work_type" required>
+                        <option value="">???????????</option>
+                        <option value="????????">???????? (Full-time)</option>
+                        <option value="????????????">???????????? (Part-time)</option>
+                        <option value="?????????">?????????</option>
+                        <option value="???????????">???????????/??????</option>
+                        <option value="???????????">???????????</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="experience_required">???????????????????? *</label>
+                    <select id="experience_required" name="experience_required" required>
+                        <option value="">?????</option>
+                        <option value="?????????????????????????">?????????????????????????</option>
+                        <option value="???????? 1 ??">???????? 1 ??</option>
+                        <option value="1-3 ??">1-3 ??</option>
+                        <option value="3-5 ??">3-5 ??</option>
+                        <option value="??????? 5 ??">??????? 5 ??</option>
+                    </select>
+                </div>
+
+                <h2>????????????</h2>
+
+                <div class="form-group">
+                    <label for="location_area">???????????? *</label>
+                    <input id="location_area" name="location_area" placeholder="???? ?????????-??????? 30, ????????XXX" required>
+                    <div class="hint">????????????????????</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="district">????? (????????) *</label>
+                    <select id="district" name="district" required>
+                        <option value="">??????????</option>
+                        <option value="?????????????">?????????????</option>
+                        <option value="????????">????????</option>
+                        <option value="???????">???????</option>
+                        <option value="????????">????????</option>
+                        <option value="???????????">???????????</option>
+                        <option value="???????">???????</option>
+                        <option value="??????">??????</option>
+                    </select>
+                </div>
+
+                <h2>???????????????</h2>
+
+                <div class="form-group">
+                    <label for="headcount">????????????????? *</label>
+                    <input id="headcount" name="headcount" type="number" min="1" max="999" placeholder="1" required>
+                    <div class="hint">???????????????????????</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="wage_type">????????????? *</label>
+                    <select id="wage_type" name="wage_type" required>
+                        <option value="">???????????</option>
+                        <option value="??????">??????</option>
+                        <option value="????????">????????</option>
+                        <option value="??????????">??????????</option>
+                        <option value="????????">????????</option>
+                    </select>
+                </div>
+
+                <div id="lump_sum_days_group" class="form-group conditional-field">
+                    <label for="lump_sum_days">?????????????? *</label>
+                    <input id="lump_sum_days" name="lump_sum_days" type="number" min="1" max="365" placeholder="7">
+                    <div class="hint">?????????????????????????????</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="wage_amount">???????????? (???) *</label>
+                    <input id="wage_amount" name="wage_amount" type="number" min="1" step="0.01" placeholder="15000" required>
+                    <div class="hint">?????????????????????????????</div>
                 </div>
 
                 <button id="submitBtn" type="submit" disabled>
@@ -256,84 +321,52 @@ Employer
             </form>
         </div>
         
-        <!-- Success View / History -->
         <div id="success-view" class="hidden success-box">
-            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #4caf50;">📋 ประวัติการประกาศงาน</h2>
+            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #0066cc;">???????????????</h2>
             
             <div class="history-box">
                 <div class="history-item">
-                    <div class="history-label">ชื่อสถานประกอบการ</div>
-                    <div class="history-value" id="hist-business"></div>
+                    <div class="history-label">??????/??????</div>
+                    <div class="history-value" id="hist-company"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">ตำแหน่งงาน</div>
+                    <div class="history-label">??????????</div>
                     <div class="history-value" id="hist-job"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">จำนวนที่รับ</div>
-                    <div class="history-value" id="hist-positions"></div>
+                    <div class="history-label">???????</div>
+                    <div class="history-value" id="hist-headcount"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">ค่าจ้าง</div>
+                    <div class="history-label">???????</div>
                     <div class="history-value" id="hist-wage"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">วันที่ประกาศ</div>
+                    <div class="history-label">????????????</div>
                     <div class="history-value" id="hist-date"></div>
                 </div>
             </div>
 
             <div style="text-align: center; margin: 24px 0; padding: 16px; background: #d4edda; border-radius: 10px; color: #155724;">
-                <strong>✅ ประกาศงานสำเร็จ!</strong><br>
-                <small>เราจะช่วยคุณหาพนักงานที่เหมาะสม</small>
+                <strong>???????????????</strong><br>
+                <small>???????????????????????????????????????</small>
             </div>
 
-            <button id="closeBtn" class="btn-secondary">ปิดหน้าต่าง</button>
-        </div>
-
-        <!-- History View -->
-        <div id="history-view" class="hidden">
-            <h2 style="border: none; text-align: center; margin-bottom: 24px;">📋 ประวัติการลงทะเบียน</h2>
-            
-            <div class="history-box">
-                <div class="history-item">
-                    <div class="history-label">ชื่อสถานประกอบการ</div>
-                    <div class="history-value" id="hist-business"></div>
-                </div>
-                <div class="history-item">
-                    <div class="history-label">ตำแหน่งงาน</div>
-                    <div class="history-value" id="hist-job"></div>
-                </div>
-                <div class="history-item">
-                    <div class="history-label">จำนวนที่รับ</div>
-                    <div class="history-value" id="hist-positions"></div>
-                </div>
-                <div class="history-item">
-                    <div class="history-label">ค่าจ้าง</div>
-                    <div class="history-value" id="hist-wage"></div>
-                </div>
-                <div class="history-item">
-                    <div class="history-label">วันที่ส่งฟอร์ม</div>
-                    <div class="history-value" id="hist-date"></div>
-                </div>
-            </div>
-
-            <button id="newPostBtn" class="btn-warning">📝 ลงประกาศใหม่</button>
-            <button id="closeHistBtn" class="btn-secondary">ปิดหน้าต่าง</button>
+            <button id="closeBtn" class="btn-secondary">???????????</button>
         </div>
     </div>
 
     <script>
-    // ✅ Configuration
+    // Configuration
     const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxzcCUSWmFM0FUKBS448URffyg8TZnn9-hAkH3qms1gUZSLeAnBMk59In-ATeAS4J8P_Q/exec";
     const LIFF_ID = "2008394776-yGB4gQdv";
     
     const $ = id => document.getElementById(id);
-    let userProfile, userIdToken, liffReady = false;
+    let userProfile, liffReady = false;
     let allRoles = [];
-    let allCategories = [];
+    let selectedRole = null;
 
-    // ✨ PDPA Modal handlers
+    // PDPA Modal handlers
     $("pdpaDetailLink").addEventListener('click', function(e) {
         e.preventDefault();
         $("pdpaModal").classList.remove('hidden');
@@ -348,10 +381,39 @@ Employer
         $("pdpaModal").classList.add('hidden');
     });
 
-    // Close modal when clicking outside
     $("pdpaModal").addEventListener('click', function(e) {
         if (e.target === $("pdpaModal")) {
             $("pdpaModal").classList.add('hidden');
+        }
+    });
+
+    // Dynamic company label based on user_type
+    $("user_type").addEventListener('change', function() {
+        const companyLabel = $("company_label");
+        const value = this.value;
+        
+        const labels = {
+            '??????/????????': '??????????/???????? *',
+            '?????????': '????????????? *',
+            '??????': '?????????? *',
+            '???????????': '?????????????? *',
+            '????????????': '???????????? *',
+            '?????': '??????????/?????? *'
+        };
+        
+        companyLabel.textContent = labels[value] || '??????????/?????? *';
+    });
+
+    // Conditional field: lump_sum_days
+    $("wage_type").addEventListener('change', function() {
+        const lumpSumGroup = $("lump_sum_days_group");
+        if (this.value === '????????') {
+            lumpSumGroup.classList.add('visible');
+            $("lump_sum_days").required = true;
+        } else {
+            lumpSumGroup.classList.remove('visible');
+            $("lump_sum_days").required = false;
+            $("lump_sum_days").value = '';
         }
     });
 
@@ -364,240 +426,129 @@ Employer
             }
             
             userProfile = await liff.getProfile();
-            userIdToken = liff.getIDToken();
             liffReady = true;
 
-            $("hello").textContent = `สวัสดี, ${userProfile.displayName} 👋`;
+            $("hello").textContent = `?????? ${userProfile.displayName}`;
             $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
             if (userProfile.pictureUrl) $("avatar").src = userProfile.pictureUrl;
             
-            // ✨ Load roles first
             await loadRoles();
-            
-            // Check history
-            const hasSubmitted = await checkHistory();
-            showView(hasSubmitted ? 'history' : 'form');
             
         } catch (e) {
             console.error("LIFF Error:", e);
-            $("hello").textContent = "❌ เกิดข้อผิดพลาด";
-            $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
+            $("hello").textContent = "??????????????";
+            $("uid").textContent = "????????????????????";
         }
     }
 
-    // ✨ Load roles from API
     async function loadRoles() {
         try {
-            showStatus("กำลังโหลดตำแหน่งงาน...", "info");
-            
-            const response = await fetch(`${GAS_ENDPOINT}?api=roles_by_category`);
+            showStatus("???????????????...", "info");
+            const response = await fetch(`${GAS_ENDPOINT}?api=roles`);
             const data = await response.json();
             
-            if (data.ok && data.categories && data.grouped) {
-                allCategories = data.categories;
-                
-                // Flatten all roles
-                allRoles = [];
-                Object.values(data.grouped).forEach(roles => {
-                    allRoles.push(...roles);
-                });
-                
-                populateCategories(data.categories);
-                populateJobTitles(allRoles);
+            if (data.ok && data.roles) {
+                allRoles = data.roles;
                 
                 $("submitBtn").disabled = false;
-                $("submitBtn").textContent = '✅ ส่งข้อมูล';
-                showStatus("พร้อมใช้งาน! 🎉", "success");
+                $("submitBtn").textContent = '????????????';
+                showStatus("???????????", "success");
                 setTimeout(() => $("status").classList.add('hidden'), 2000);
             } else {
                 console.error("Failed to load roles:", data.error);
-                useFallbackOptions();
+                useFallbackRoles();
             }
         } catch (e) {
             console.error("Error loading roles:", e);
-            useFallbackOptions();
+            useFallbackRoles();
         }
     }
 
-    // Populate categories dropdown
-    function populateCategories(categories) {
-        const select = $("job_category");
-        select.innerHTML = '<option value="">--- เลือกหมวดหมู่ ---</option>';
-        
-        categories.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
-            select.appendChild(option);
-        });
-    }
-
-    // Populate job titles dropdown with optgroups
-    function populateJobTitles(roles) {
-        const select = $("job_title_select");
-        select.innerHTML = '<option value="">--- เลือกตำแหน่ง ---</option>';
-        
-        // Group by category
-        const grouped = {};
-        roles.forEach(role => {
-            if (!grouped[role.category]) {
-                grouped[role.category] = [];
-            }
-            grouped[role.category].push(role);
-        });
-        
-        // Add options with optgroup
-        Object.keys(grouped).sort().forEach(category => {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = category;
-            
-            grouped[category].forEach(role => {
-                const option = document.createElement('option');
-                option.value = role.name_th;
-                option.textContent = `${role.name_th} (${role.pay_min}-${role.pay_max} บาท)`;
-                option.dataset.roleId = role.role_id;
-                option.dataset.category = role.category;
-                option.dataset.payMin = role.pay_min;
-                option.dataset.payMax = role.pay_max;
-                optgroup.appendChild(option);
-            });
-            
-            select.appendChild(optgroup);
-        });
-        
-        // Add "Other" option
-        const optionOther = document.createElement('option');
-        optionOther.value = 'อื่นๆ';
-        optionOther.textContent = 'อื่นๆ (ระบุ)';
-        select.appendChild(optionOther);
-    }
-
-    // Fallback options if API fails
-    function useFallbackOptions() {
-        const categories = [
-            "งานบริการ / ร้านอาหาร",
-            "งานขาย / ตลาด",
-            "งานช่าง / ซ่อมบำรุง",
-            "ท่องเที่ยว / อีเวนต์",
-            "หัตถกรรม / ศิลป์",
-            "เกษตร / ฟาร์ม"
-        ];
-        
-        const catSelect = $("job_category");
-        catSelect.innerHTML = '<option value="">--- เลือกประเภท ---</option>';
-        categories.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
-            catSelect.appendChild(option);
-        });
-        
-        const jobSelect = $("job_title_select");
-        jobSelect.innerHTML = `
-            <option value="">--- เลือกตำแหน่ง ---</option>
-            <option value="พนักงานเสิร์ฟ">พนักงานเสิร์ฟ</option>
-            <option value="พนักงานขาย">พนักงานขาย</option>
-            <option value="ช่างซ่อม">ช่างซ่อม</option>
-            <option value="แม่บ้าน">แม่บ้าน</option>
-            <option value="พนักงานครัว">พนักงานครัว</option>
-            <option value="คนขับรถ">คนขับรถ</option>
-            <option value="อื่นๆ">อื่นๆ (ระบุ)</option>
-        `;
-        
+    function useFallbackRoles() {
+        allRoles = [];
         $("submitBtn").disabled = false;
-        $("submitBtn").textContent = '✅ ส่งข้อมูล';
-        showStatus("โหลดตำแหน่งงานเสร็จสิ้น", "success");
+        $("submitBtn").textContent = '????????????';
+        showStatus("???????????????????", "success");
         setTimeout(() => $("status").classList.add('hidden'), 2000);
     }
 
-    // ✨ Show wage suggestion when job title is selected
-    $("job_title_select").addEventListener('change', function(e) {
-        const selectedOption = e.target.selectedOptions[0];
-        const otherGroup = $("job_title_other_group");
-        const wageBox = $("wage-suggestion");
-        
-        if (e.target.value === 'อื่นๆ') {
-            // Show "other" input
-            otherGroup.classList.remove('hidden');
-            $("job_title_other").required = true;
-            wageBox.classList.add('hidden');
-        } else {
-            // Hide "other" input
-            otherGroup.classList.add('hidden');
-            $("job_title_other").required = false;
-            
-            // Show wage suggestion
-            const payMin = selectedOption.dataset.payMin;
-            const payMax = selectedOption.dataset.payMax;
-            const category = selectedOption.dataset.category;
-            
-            if (payMin && payMax) {
-                $("wage-range").textContent = `${payMin}-${payMax}`;
-                wageBox.classList.remove('hidden');
-                
-                // Auto-fill category
-                if (category) {
-                    $("job_category").value = category;
-                }
-                
-                // Suggest wage (average)
-                const avgWage = Math.round((parseInt(payMin) + parseInt(payMax)) / 2);
-                if (!$("wage_amount").value) {
-                    $("wage_amount").value = avgWage;
-                }
-            } else {
-                wageBox.classList.add('hidden');
-            }
-        }
-    });
+    // Autocomplete functionality
+    const jobTitleInput = $("job_title");
+    const dropdown = $("autocomplete_dropdown");
 
-    // ✨ Filter job titles when category is selected
-    $("job_category").addEventListener('change', function(e) {
-        const selectedCategory = e.target.value;
+    jobTitleInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim().toLowerCase();
         
-        if (!selectedCategory) {
-            populateJobTitles(allRoles);
+        if (query.length < 1) {
+            dropdown.classList.add('hidden');
             return;
         }
         
-        const filtered = allRoles.filter(role => role.category === selectedCategory);
-        populateJobTitles(filtered);
+        const filtered = allRoles.filter(role => {
+            const searchText = `${role.name_th} ${role.category} ${role.skills || ''}`.toLowerCase();
+            return searchText.includes(query);
+        }).slice(0, 5);
+        
+        if (filtered.length === 0) {
+            dropdown.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">??</div>
+                    <div>????????????????????</div>
+                    <small>?????????????????</small>
+                </div>
+            `;
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.innerHTML = filtered.map(role => `
+                <div class="autocomplete-item" data-role-id="${role.role_id}">
+                    <div class="job-title">${role.name_th}</div>
+                    <div class="job-meta">
+                        <span>${role.category}</span>
+                        <span>? ${role.pay_min}-${role.pay_max} ???/???</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            dropdown.classList.remove('hidden');
+            
+            // Add click handlers
+            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const roleId = this.dataset.roleId;
+                    selectRole(roleId);
+                });
+            });
+        }
     });
 
-    async function checkHistory() {
-        try {
-            const response = await fetch(`${GAS_ENDPOINT}?type=employer&userId=${userProfile.userId}`);
-            const data = await response.json();
-            
-            if (data.status === 'check_history' && data.hasSubmitted) {
-                const sub = data.latestSubmission;
-                $("hist-business").textContent = sub.business_name || '-';
-                $("hist-job").textContent = sub.job_title || '-';
-                $("hist-positions").textContent = `${sub.number_of_positions} ตำแหน่ง` || '-';
-                $("hist-wage").textContent = `${sub.wage_amount} บาท/วัน` || '-';
-                $("hist-date").textContent = sub.timestamp ? new Date(sub.timestamp).toLocaleString('th-TH') : '-';
-                return true;
-            }
-            return false;
-        } catch (e) {
-            console.error("Check history error:", e);
-            return false;
+    function selectRole(roleId) {
+        selectedRole = allRoles.find(r => r.role_id === roleId);
+        if (!selectedRole) return;
+        
+        jobTitleInput.value = selectedRole.name_th;
+        dropdown.classList.add('hidden');
+        
+        $("selected_job_info").classList.remove('hidden');
+        
+        const wageInfo = $("wage_info");
+        wageInfo.innerHTML = `<strong>????????????:</strong> ${selectedRole.pay_min}-${selectedRole.pay_max} ???/???<br><small>${selectedRole.category}</small>`;
+        wageInfo.classList.remove('hidden');
+        
+        // ???? skills ???? hint
+        if (selectedRole.skills) {
+            const skillsHint = $("skills_hint");
+            skillsHint.innerHTML = `?? <strong>??????????:</strong> ${selectedRole.skills}`;
+            skillsHint.style.color = '#0066cc';
+            skillsHint.style.fontWeight = '600';
         }
     }
 
-    function showView(view) {
-        $("form-view").classList.add('hidden');
-        $("success-view").classList.add('hidden');
-        $("history-view").classList.add('hidden');
-        
-        if (view === 'form') {
-            $("form-view").classList.remove('hidden');
-        } else if (view === 'success') {
-            $("success-view").classList.remove('hidden');
-        } else if (view === 'history') {
-            $("history-view").classList.remove('hidden');
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!jobTitleInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
         }
-    }
+    });
 
     function showStatus(msg, type = 'info') {
         const s = $("status");
@@ -606,19 +557,18 @@ Employer
         s.classList.remove('hidden');
     }
 
-    $("mainForm").addEventListener('submit', function(e) {
+    $("mainForm").addEventListener('submit', async function(e) {
         e.preventDefault();
-        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
+        if (!liffReady) { showStatus("??????????????...", "info"); return; }
 
-        // Get job title (either from select or "other" input)
-        let jobTitle = $("job_title_select").value;
-        if (jobTitle === 'อื่นๆ') {
-            jobTitle = $("job_title_other").value;
-        }
+        $("submitBtn").disabled = true;
+        $("submitBtn").innerHTML = '<div class="loader"></div>';
+        
+        showStatus("??????????????...", "info");
 
         const payload = {
             type: "employer",
-            idToken: userIdToken,
+            user_type: "employer",
             profile: {
                 userId: userProfile.userId,
                 displayName: userProfile.displayName,
@@ -626,24 +576,23 @@ Employer
             },
             data: {
                 pdpa_consent: $("consent_pdpa").checked ? "on" : "off",
-                business_name: $("business_name").value,
+                user_type: $("user_type").value,
+                company_or_org: $("company_or_org").value,
                 contact_person: $("contact_person").value,
-                phone: $("phone").value,
-                email: $("email").value,
-                district: $("district").value,
-                job_category: $("job_category").value,
-                job_title: jobTitle,
+                contact_phone: $("contact_phone").value,
+                job_title: $("job_title").value,
                 job_description: $("job_description").value,
-                number_of_positions: $("number_of_positions").value,
-                wage_amount: $("wage_amount").value,
-                work_schedule: $("work_schedule").value,
-                additional_info: $("additional_info").value
+                education_required: $("education_required").value,
+                work_type: $("work_type").value,
+                experience_required: $("experience_required").value,
+                location_area: $("location_area").value,
+                district: $("district").value,
+                headcount: $("headcount").value,
+                wage_type: $("wage_type").value,
+                lump_sum_days: $("lump_sum_days").value,
+                wage_amount: $("wage_amount").value
             }
         };
-
-        $("submitBtn").disabled = true;
-        $("submitBtn").innerHTML = '<div class="loader"></div>';
-        showStatus("กำลังส่งข้อมูล...", "info");
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', GAS_ENDPOINT, true);
@@ -654,38 +603,34 @@ Employer
                 try {
                     const result = JSON.parse(xhr.responseText);
                     if (result.ok) {
-                        // ✨ Show history with submitted data
                         showSubmittedHistory(payload.data);
                     } else {
-                        showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
+                        showStatus(`? ${result.error || '??????????????'}`, "error");
                         $("submitBtn").disabled = false;
-                        $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                        $("submitBtn").textContent = '??????????????';
                     }
                 } catch (parseError) {
-                    // ✨ Even if parse error, show history
                     showSubmittedHistory(payload.data);
                 }
             } else {
-                showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
+                showStatus(`? ???????????? (${xhr.status})`, "error");
                 $("submitBtn").disabled = false;
-                $("submitBtn").textContent = '🔄 ลองส่งอีกครั้ง';
+                $("submitBtn").textContent = '??????????????';
             }
         };
         
         xhr.onerror = function() {
-            // ✨ On error, still show history (likely CORS, but data saved)
             showSubmittedHistory(payload.data);
         };
         
         xhr.send(JSON.stringify(payload));
     });
 
-    // ✨ Show submitted data in history view
     function showSubmittedHistory(data) {
-        $("hist-business").textContent = data.business_name || '-';
+        $("hist-company").textContent = data.company_or_org || '-';
         $("hist-job").textContent = data.job_title || '-';
-        $("hist-positions").textContent = `${data.number_of_positions} ตำแหน่ง` || '-';
-        $("hist-wage").textContent = `${data.wage_amount} บาท/วัน` || '-';
+        $("hist-headcount").textContent = (data.headcount || '-') + ' ??';
+        $("hist-wage").textContent = (data.wage_amount || '-') + ' ???/' + (data.wage_type || '-');
         $("hist-date").textContent = new Date().toLocaleString('th-TH', {
             year: 'numeric',
             month: 'long',
@@ -694,27 +639,16 @@ Employer
             minute: '2-digit'
         });
         
-        showView('success');
+        $("form-view").classList.add('hidden');
+        $("success-view").classList.remove('hidden');
     }
 
     $("closeBtn").addEventListener('click', function() {
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
-            alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
+            alert("??????????????????????????");
         }
-    });
-
-    $("closeHistBtn").addEventListener('click', function() {
-        if (liff.isInClient()) {
-            liff.closeWindow();
-        } else {
-            alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
-        }
-    });
-
-    $("newPostBtn").addEventListener('click', function() {
-        showView('form');
     });
 
     init();
