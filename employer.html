@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobLocal - ????????????</title>
+    <title>JobLocal - ฟอร์มนายจ้าง</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -106,8 +106,8 @@
         <header>
             <img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e3f2fd' width='64' height='64'/%3E%3C/svg%3E" alt="Avatar">
             <div style="flex: 1;">
-                <div id="hello">?????????????? LINE...</div>
-                <small id="uid">?????????...</small>
+                <div id="hello">กำลังเชื่อมต่อ LINE...</div>
+                <small id="uid">กำลังโหลด...</small>
             </div>
         </header>
 
@@ -116,8 +116,8 @@
                 <div class="pdpa-box">
                     <label>
                         <input type="checkbox" id="consent_pdpa" name="consent_pdpa" required>
-                        <span><strong>?????? PDPA</strong> - ????????????????????????????????????????????? ?.?.?. ??????????????????????? 
-                        <a href="#" id="pdpaDetailLink" style="color: #0066cc; text-decoration: underline; margin-left: 8px;">?????????????</a></span>
+                        <span><strong>ยืนยัน PDPA</strong> - ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล 
+                        <a href="#" id="pdpaDetailLink" style="color: #0066cc; text-decoration: underline; margin-left: 8px;">อ่านเพิ่มเติม</a></span>
                     </label>
                 </div>
 
@@ -125,193 +125,193 @@
                 <div id="pdpaModal" class="modal hidden">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3>????????????????????? (PDPA)</h3>
+                            <h3>นโยบายความเป็นส่วนตัว (PDPA)</h3>
                             <button type="button" id="closePdpaModal" class="close-btn">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <p><strong>?????????????????????????????????????? ??? ????????????????????????? ??????????????????????????????????????? ?.?. 2562</strong></p>
+                            <p><strong>ข้าพเจ้าขอให้ความยินยอมในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</strong></p>
                             
-                            <h4>1. ????????????????????????????</h4>
+                            <h4>1. วัตถุประสงค์ของการเก็บข้อมูล</h4>
                             <ul>
-                                <li>????????????????????????????????????????????????????????????</li>
-                                <li>????????? ???????????????????? ?????????????????????</li>
-                                <li>??????????????????????????? ????????????????????????????????? JobLocal</li>
+                                <li>การจับคู่งานระหว่างผู้หางานและผู้จ้างงานภายในจังหวัดปทุมธานี</li>
+                                <li>การติดต่อ แจ้งข้อมูลตำแหน่งงาน และผู้สมัครที่เหมาะสม</li>
+                                <li>การวิเคราะห์ข้อมูลเชิงสถิติ เพื่อพัฒนาระบบและบริการของโครงการ JobLocal</li>
                             </ul>
                             
-                            <h4>2. ??????????????????????????????????</h4>
-                            <p>??????????/?????? ????????????? ????????????? LINE ID ???????????????? ???????????????????????</p>
+                            <h4>2. ประเภทข้อมูลส่วนบุคคลที่เก็บรวบรวม</h4>
+                            <p>ชื่อบริษัท/องค์กร ชื่อผู้ติดต่อ เบอร์โทรศัพท์ LINE ID ข้อมูลตำแหน่งงาน และรายละเอียดการจ้างงาน</p>
                             
-                            <h4>3. ??????????????????????????????</h4>
-                            <p>??????????????????????????:</p>
+                            <h4>3. การเปิดเผยข้อมูลแก่บุคคลภายนอก</h4>
+                            <p>ข้อมูลจะถูกเปิดเผยเฉพาะกับ:</p>
                             <ul>
-                                <li>????????????????????????????? JobLocal</li>
-                                <li>??????????????????????????????????????????????</li>
+                                <li>ผู้สมัครงานที่ลงทะเบียนในระบบ JobLocal</li>
+                                <li>หน่วยงานภาครัฐหรือองค์กรพันธมิตรที่ร่วมโครงการ</li>
                             </ul>
-                            <p><em>????????????????????????????? ??????????????????????????????????????????????</em></p>
+                            <p><em>จะไม่เปิดเผยข้อมูลเพื่อการค้า หรือส่งต่อให้บุคคลที่สามโดยไม่ได้รับความยินยอม</em></p>
                             
-                            <h4>4. ?????????????????????</h4>
-                            <p>????????????????????????????? ????????????? ??????????????????????????? ??????????????? JobLocal Pathum Thani</p>
+                            <h4>4. สิทธิของเจ้าของข้อมูล</h4>
+                            <p>ท่านมีสิทธิในการเข้าถึงข้อมูล ขอแก้ไขข้อมูล และถอนความยินยอมได้ทุกเมื่อ โดยติดต่อทีมงาน JobLocal Pathum Thani</p>
                             
-                            <h4>5. ??????????????????????????</h4>
-                            <p>??????????????????????????????? <strong>2 ??</strong> ??????????????????????? ????????????????????????????</p>
+                            <h4>5. ระยะเวลาการเก็บรักษาข้อมูล</h4>
+                            <p>ข้อมูลจะถูกจัดเก็บไว้นานไม่เกิน <strong>2 ปี</strong> นับจากวันที่ส่งแบบฟอร์ม หรือจนกว่าจะมีการขอถอนข้อมูล</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" id="acceptPdpa" class="btn-accept">???????????????</button>
+                            <button type="button" id="acceptPdpa" class="btn-accept">เข้าใจและยอมรับ</button>
                         </div>
                     </div>
                 </div>
 
-                <h2>????????????????</h2>
+                <h2>ข้อมูลผู้ว่าจ้าง</h2>
                 
                 <div class="form-group">
-                    <label for="user_type">???????????????? *</label>
+                    <label for="user_type">ประเภทผู้ว่าจ้าง *</label>
                     <select id="user_type" name="user_type" required>
-                        <option value="">???????????</option>
-                        <option value="??????/????????">??????/????????</option>
-                        <option value="?????????">?????????</option>
-                        <option value="??????">??????</option>
-                        <option value="???????????">???????????</option>
-                        <option value="????????????">????????????</option>
-                        <option value="?????">?????</option>
+                        <option value="">เลือกประเภท</option>
+                        <option value="บริษัท/ห้างร้าน">บริษัท/ห้างร้าน</option>
+                        <option value="ร้านอาหาร">ร้านอาหาร</option>
+                        <option value="โรงงาน">โรงงาน</option>
+                        <option value="บุคคลทั่วไป">บุคคลทั่วไป</option>
+                        <option value="องค์กรภาครัฐ">องค์กรภาครัฐ</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="company_or_org" id="company_label">??????????/?????? *</label>
-                    <input id="company_or_org" name="company_or_org" placeholder="????????" required>
+                    <label for="company_or_org" id="company_label">ชื่อบริษัท/องค์กร *</label>
+                    <input id="company_or_org" name="company_or_org" placeholder="ระบุชื่อ" required>
                 </div>
                 
                 <div class="row">
                     <div class="form-group">
-                        <label for="contact_person">????????????? *</label>
-                        <input id="contact_person" name="contact_person" placeholder="????-???????" required>
+                        <label for="contact_person">ชื่อผู้ติดต่อ *</label>
+                        <input id="contact_person" name="contact_person" placeholder="ชื่อ-นามสกุล" required>
                     </div>
                     <div class="form-group">
-                        <label for="contact_phone">????????????? *</label>
+                        <label for="contact_phone">เบอร์โทรศัพท์ *</label>
                         <input id="contact_phone" name="contact_phone" type="tel" pattern="[0-9]{10}" placeholder="0812345678" required>
-                        <div class="hint">???? 10 ????</div>
+                        <div class="hint">กรอก 10 หลัก</div>
                     </div>
                 </div>
 
-                <h2>?????????</h2>
+                <h2>ข้อมูลงาน</h2>
 
                 <div class="form-group autocomplete-wrapper">
-                    <label for="job_title">?????????? *</label>
-                    <span class="search-icon">??</span>
+                    <label for="job_title">ตำแหน่งงาน *</label>
+                    <span class="search-icon">🔍</span>
                     <input 
                         id="job_title" 
                         name="job_title" 
                         class="with-icon"
-                        placeholder="??????????????? ???? '?????????????', '??????????'"
+                        placeholder="ค้นหาตำแหน่งงาน เช่น 'พนักงานบริการ', 'พนักงานขาย'"
                         required
                         autocomplete="off"
                     >
-                    <div class="hint">???????????????? ?????????</div>
+                    <div class="hint">ถ้าไม่มีในรายการ กรุณาระบุ</div>
                     
                     <!-- Autocomplete Dropdown -->
                     <div id="autocomplete_dropdown" class="autocomplete-dropdown hidden"></div>
                     
                     <!-- Selected job info -->
                     <div id="selected_job_info" class="hidden">
-                        <div class="selected-badge">? ?????????</div>
+                        <div class="selected-badge">✓ เลือกแล้ว</div>
                         <div id="wage_info" class="wage-info hidden"></div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="job_description">????????????????????????????????? *</label>
-                    <textarea id="job_description" name="job_description" rows="6" placeholder="?????????????:&#10;- ????????????????????&#10;- ?????????&#10;&#10;?????????????????:&#10;- ???????????????&#10;- ??????????" required></textarea>
-                    <div class="hint" id="skills_hint">????????????????????????????????????????????????</div>
+                    <label for="job_description">รายละเอียดงานและคุณสมบัติผู้สมัคร *</label>
+                    <textarea id="job_description" name="job_description" rows="6" placeholder="รายละเอียดงาน:&#10;- หน้าที่ความรับผิดชอบ&#10;- ลักษณะงาน&#10;&#10;คุณสมบัติผู้สมัคร:&#10;- ทักษะที่ต้องการ&#10;- ประสบการณ์" required></textarea>
+                    <div class="hint" id="skills_hint">ระบุรายละเอียดงานและคุณสมบัติที่ต้องการให้ชัดเจน</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="education_required">??????????????????????? *</label>
+                    <label for="education_required">ระดับการศึกษาที่ต้องการ *</label>
                     <select id="education_required" name="education_required" required>
-                        <option value="">??????????????????</option>
-                        <option value="????????">????????</option>
-                        <option value="??????? ?.6">??????? ?.6</option>
-                        <option value="?.6 / ???.">?.6 / ???.</option>
-                        <option value="???. / ?????????">???. / ?????????</option>
-                        <option value="?????????">?????????</option>
-                        <option value="????????????????">????????????????</option>
+                        <option value="">เลือกระดับการศึกษา</option>
+                        <option value="ไม่จำกัด">ไม่จำกัด</option>
+                        <option value="ต่ำกว่า ม.6">ต่ำกว่า ม.6</option>
+                        <option value="ม.6 / ปวช.">ม.6 / ปวช.</option>
+                        <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                        <option value="ปริญญาตรี">ปริญญาตรี</option>
+                        <option value="สูงกว่าปริญญาตรี">สูงกว่าปริญญาตรี</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="work_type">????????? *</label>
+                    <label for="work_type">รูปแบบงาน *</label>
                     <select id="work_type" name="work_type" required>
-                        <option value="">???????????</option>
-                        <option value="????????">???????? (Full-time)</option>
-                        <option value="????????????">???????????? (Part-time)</option>
-                        <option value="?????????">?????????</option>
-                        <option value="???????????">???????????/??????</option>
-                        <option value="???????????">???????????</option>
+                        <option value="">เลือกรูปแบบ</option>
+                        <option value="งานประจำ">งานประจำ (Full-time)</option>
+                        <option value="งานพาร์ทไทม์">งานพาร์ทไทม์ (Part-time)</option>
+                        <option value="งานรายวัน">งานรายวัน</option>
+                        <option value="งานชั่วคราว">งานชั่วคราว/โปรเจค</option>
+                        <option value="งานฟรีแลนซ์">งานฟรีแลนซ์</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="experience_required">???????????????????? *</label>
+                    <label for="experience_required">ประสบการณ์ที่ต้องการ *</label>
                     <select id="experience_required" name="experience_required" required>
-                        <option value="">?????</option>
-                        <option value="?????????????????????????">?????????????????????????</option>
-                        <option value="???????? 1 ??">???????? 1 ??</option>
-                        <option value="1-3 ??">1-3 ??</option>
-                        <option value="3-5 ??">3-5 ??</option>
-                        <option value="??????? 5 ??">??????? 5 ??</option>
+                        <option value="">เลือก</option>
+                        <option value="ไม่จำเป็นต้องมีประสบการณ์">ไม่จำเป็นต้องมีประสบการณ์</option>
+                        <option value="น้อยกว่า 1 ปี">น้อยกว่า 1 ปี</option>
+                        <option value="1-3 ปี">1-3 ปี</option>
+                        <option value="3-5 ปี">3-5 ปี</option>
+                        <option value="มากกว่า 5 ปี">มากกว่า 5 ปี</option>
                     </select>
                 </div>
 
-                <h2>????????????</h2>
+                <h2>สถานที่ทำงาน</h2>
 
                 <div class="form-group">
-                    <label for="location_area">???????????? *</label>
-                    <input id="location_area" name="location_area" placeholder="???? ?????????-??????? 30, ????????XXX" required>
-                    <div class="hint">????????????????????</div>
+                    <label for="location_area">สถานที่ทำงาน *</label>
+                    <input id="location_area" name="location_area" placeholder="เช่น ซอยรังสิต-นครนายก 30, หมู่บ้านXXX" required>
+                    <div class="hint">ระบุสถานที่ให้ชัดเจน</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="district">????? (????????) *</label>
+                    <label for="district">อำเภอ (ปทุมธานี) *</label>
                     <select id="district" name="district" required>
-                        <option value="">??????????</option>
-                        <option value="?????????????">?????????????</option>
-                        <option value="????????">????????</option>
-                        <option value="???????">???????</option>
-                        <option value="????????">????????</option>
-                        <option value="???????????">???????????</option>
-                        <option value="???????">???????</option>
-                        <option value="??????">??????</option>
+                        <option value="">เลือกอำเภอ</option>
+                        <option value="เมืองปทุมธานี">เมืองปทุมธานี</option>
+                        <option value="คลองหลวง">คลองหลวง</option>
+                        <option value="ธัญบุรี">ธัญบุรี</option>
+                        <option value="หนองเสือ">หนองเสือ</option>
+                        <option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option>
+                        <option value="ลำลูกกา">ลำลูกกา</option>
+                        <option value="สามโคก">สามโคก</option>
                     </select>
                 </div>
 
-                <h2>???????????????</h2>
+                <h2>จำนวนและค่าจ้าง</h2>
 
                 <div class="form-group">
-                    <label for="headcount">????????????????? *</label>
+                    <label for="headcount">จำนวนคนที่ต้องการ *</label>
                     <input id="headcount" name="headcount" type="number" min="1" max="999" placeholder="1" required>
-                    <div class="hint">???????????????????????</div>
+                    <div class="hint">ระบุจำนวนที่ต้องการจ้าง</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="wage_type">????????????? *</label>
+                    <label for="wage_type">รูปแบบค่าจ้าง *</label>
                     <select id="wage_type" name="wage_type" required>
-                        <option value="">???????????</option>
-                        <option value="??????">??????</option>
-                        <option value="????????">????????</option>
-                        <option value="??????????">??????????</option>
-                        <option value="????????">????????</option>
+                        <option value="">เลือกรูปแบบ</option>
+                        <option value="รายวัน">รายวัน</option>
+                        <option value="รายเดือน">รายเดือน</option>
+                        <option value="รายชั่วโมง">รายชั่วโมง</option>
+                        <option value="เหมาจ้าง">เหมาจ้าง</option>
                     </select>
                 </div>
 
                 <div id="lump_sum_days_group" class="form-group conditional-field">
-                    <label for="lump_sum_days">?????????????? *</label>
+                    <label for="lump_sum_days">เหมาจ้างกี่วัน *</label>
                     <input id="lump_sum_days" name="lump_sum_days" type="number" min="1" max="365" placeholder="7">
-                    <div class="hint">?????????????????????????????</div>
+                    <div class="hint">ระบุจำนวนวันสำหรับงานเหมาจ้าง</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="wage_amount">???????????? (???) *</label>
+                    <label for="wage_amount">จำนวนค่าจ้าง (บาท) *</label>
                     <input id="wage_amount" name="wage_amount" type="number" min="1" step="0.01" placeholder="15000" required>
-                    <div class="hint">?????????????????????????????</div>
+                    <div class="hint">ระบุจำนวนเงินตามรูปแบบค่าจ้าง</div>
                 </div>
 
                 <button id="submitBtn" type="submit" disabled>
@@ -322,37 +322,37 @@
         </div>
         
         <div id="success-view" class="hidden success-box">
-            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #0066cc;">???????????????</h2>
+            <h2 style="border: none; text-align: center; margin-bottom: 24px; color: #0066cc;">ประกาศงานสำเร็จ</h2>
             
             <div class="history-box">
                 <div class="history-item">
-                    <div class="history-label">??????/??????</div>
+                    <div class="history-label">บริษัท/องค์กร</div>
                     <div class="history-value" id="hist-company"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">??????????</div>
+                    <div class="history-label">ตำแหน่งงาน</div>
                     <div class="history-value" id="hist-job"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">???????</div>
+                    <div class="history-label">จำนวนคน</div>
                     <div class="history-value" id="hist-headcount"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">???????</div>
+                    <div class="history-label">ค่าจ้าง</div>
                     <div class="history-value" id="hist-wage"></div>
                 </div>
                 <div class="history-item">
-                    <div class="history-label">????????????</div>
+                    <div class="history-label">วันที่ประกาศ</div>
                     <div class="history-value" id="hist-date"></div>
                 </div>
             </div>
 
             <div style="text-align: center; margin: 24px 0; padding: 16px; background: #d4edda; border-radius: 10px; color: #155724;">
-                <strong>???????????????</strong><br>
-                <small>???????????????????????????????????????</small>
+                <strong>ประกาศงานสำเร็จ</strong><br>
+                <small>เราจะแจ้งเตือนเมื่อมีผู้สมัครที่เหมาะสม</small>
             </div>
 
-            <button id="closeBtn" class="btn-secondary">???????????</button>
+            <button id="closeBtn" class="btn-secondary">ปิดหน้าต่าง</button>
         </div>
     </div>
 
@@ -393,21 +393,21 @@
         const value = this.value;
         
         const labels = {
-            '??????/????????': '??????????/???????? *',
-            '?????????': '????????????? *',
-            '??????': '?????????? *',
-            '???????????': '?????????????? *',
-            '????????????': '???????????? *',
-            '?????': '??????????/?????? *'
+            'บริษัท/ห้างร้าน': 'ชื่อบริษัท/ห้างร้าน *',
+            'ร้านอาหาร': 'ชื่อร้านอาหาร *',
+            'โรงงาน': 'ชื่อโรงงาน *',
+            'บุคคลทั่วไป': 'ชื่อผู้ว่าจ้าง *',
+            'องค์กรภาครัฐ': 'ชื่อหน่วยงาน *',
+            'อื่นๆ': 'ชื่อบริษัท/องค์กร *'
         };
         
-        companyLabel.textContent = labels[value] || '??????????/?????? *';
+        companyLabel.textContent = labels[value] || 'ชื่อบริษัท/องค์กร *';
     });
 
     // Conditional field: lump_sum_days
     $("wage_type").addEventListener('change', function() {
         const lumpSumGroup = $("lump_sum_days_group");
-        if (this.value === '????????') {
+        if (this.value === 'เหมาจ้าง') {
             lumpSumGroup.classList.add('visible');
             $("lump_sum_days").required = true;
         } else {
@@ -428,7 +428,7 @@
             userProfile = await liff.getProfile();
             liffReady = true;
 
-            $("hello").textContent = `?????? ${userProfile.displayName}`;
+            $("hello").textContent = `สวัสดี ${userProfile.displayName}`;
             $("uid").textContent = `User ID: ${userProfile.userId.substring(0, 12)}...`;
             if (userProfile.pictureUrl) $("avatar").src = userProfile.pictureUrl;
             
@@ -436,14 +436,14 @@
             
         } catch (e) {
             console.error("LIFF Error:", e);
-            $("hello").textContent = "??????????????";
-            $("uid").textContent = "????????????????????";
+            $("hello").textContent = "เกิดข้อผิดพลาด";
+            $("uid").textContent = "กรุณาลองใหม่อีกครั้ง";
         }
     }
 
     async function loadRoles() {
         try {
-            showStatus("???????????????...", "info");
+            showStatus("กำลังโหลดข้อมูล...", "info");
             const response = await fetch(`${GAS_ENDPOINT}?api=roles`);
             const data = await response.json();
             
@@ -451,8 +451,8 @@
                 allRoles = data.roles;
                 
                 $("submitBtn").disabled = false;
-                $("submitBtn").textContent = '????????????';
-                showStatus("???????????", "success");
+                $("submitBtn").textContent = 'ส่งประกาศงาน';
+                showStatus("พร้อมใช้งาน", "success");
                 setTimeout(() => $("status").classList.add('hidden'), 2000);
             } else {
                 console.error("Failed to load roles:", data.error);
@@ -467,8 +467,8 @@
     function useFallbackRoles() {
         allRoles = [];
         $("submitBtn").disabled = false;
-        $("submitBtn").textContent = '????????????';
-        showStatus("???????????????????", "success");
+        $("submitBtn").textContent = 'ส่งประกาศงาน';
+        showStatus("โหลดข้อมูลเสร็จสิ้น", "success");
         setTimeout(() => $("status").classList.add('hidden'), 2000);
     }
 
@@ -492,9 +492,9 @@
         if (filtered.length === 0) {
             dropdown.innerHTML = `
                 <div class="no-results">
-                    <div class="no-results-icon">??</div>
-                    <div>????????????????????</div>
-                    <small>?????????????????</small>
+                    <div class="no-results-icon">🔍</div>
+                    <div>ไม่พบตำแหน่งที่ค้นหา</div>
+                    <small>ลองใช้คำค้นหาอื่น</small>
                 </div>
             `;
             dropdown.classList.remove('hidden');
@@ -504,7 +504,7 @@
                     <div class="job-title">${role.name_th}</div>
                     <div class="job-meta">
                         <span>${role.category}</span>
-                        <span>? ${role.pay_min}-${role.pay_max} ???/???</span>
+                        <span>฿ ${role.pay_min}-${role.pay_max} บาท/วัน</span>
                     </div>
                 </div>
             `).join('');
@@ -531,13 +531,13 @@
         $("selected_job_info").classList.remove('hidden');
         
         const wageInfo = $("wage_info");
-        wageInfo.innerHTML = `<strong>????????????:</strong> ${selectedRole.pay_min}-${selectedRole.pay_max} ???/???<br><small>${selectedRole.category}</small>`;
+        wageInfo.innerHTML = `<strong>ค่าจ้างแนะนำ:</strong> ${selectedRole.pay_min}-${selectedRole.pay_max} บาท/วัน<br><small>${selectedRole.category}</small>`;
         wageInfo.classList.remove('hidden');
         
-        // ???? skills ???? hint
+        // แสดง skills เป็น hint
         if (selectedRole.skills) {
             const skillsHint = $("skills_hint");
-            skillsHint.innerHTML = `?? <strong>??????????:</strong> ${selectedRole.skills}`;
+            skillsHint.innerHTML = `💡 <strong>ทักษะแนะนำ:</strong> ${selectedRole.skills}`;
             skillsHint.style.color = '#0066cc';
             skillsHint.style.fontWeight = '600';
         }
@@ -559,12 +559,12 @@
 
     $("mainForm").addEventListener('submit', async function(e) {
         e.preventDefault();
-        if (!liffReady) { showStatus("??????????????...", "info"); return; }
+        if (!liffReady) { showStatus("กรุณารอสักครู่...", "info"); return; }
 
         $("submitBtn").disabled = true;
         $("submitBtn").innerHTML = '<div class="loader"></div>';
         
-        showStatus("??????????????...", "info");
+        showStatus("กำลังส่งข้อมูล...", "info");
 
         const payload = {
             type: "employer",
@@ -605,17 +605,17 @@
                     if (result.ok) {
                         showSubmittedHistory(payload.data);
                     } else {
-                        showStatus(`? ${result.error || '??????????????'}`, "error");
+                        showStatus(`❌ ${result.error || 'เกิดข้อผิดพลาด'}`, "error");
                         $("submitBtn").disabled = false;
-                        $("submitBtn").textContent = '??????????????';
+                        $("submitBtn").textContent = 'ลองส่งอีกครั้ง';
                     }
                 } catch (parseError) {
                     showSubmittedHistory(payload.data);
                 }
             } else {
-                showStatus(`? ???????????? (${xhr.status})`, "error");
+                showStatus(`❌ ส่งไม่สำเร็จ (${xhr.status})`, "error");
                 $("submitBtn").disabled = false;
-                $("submitBtn").textContent = '??????????????';
+                $("submitBtn").textContent = 'ลองส่งอีกครั้ง';
             }
         };
         
@@ -629,8 +629,8 @@
     function showSubmittedHistory(data) {
         $("hist-company").textContent = data.company_or_org || '-';
         $("hist-job").textContent = data.job_title || '-';
-        $("hist-headcount").textContent = (data.headcount || '-') + ' ??';
-        $("hist-wage").textContent = (data.wage_amount || '-') + ' ???/' + (data.wage_type || '-');
+        $("hist-headcount").textContent = (data.headcount || '-') + ' คน';
+        $("hist-wage").textContent = (data.wage_amount || '-') + ' บาท/' + (data.wage_type || '-');
         $("hist-date").textContent = new Date().toLocaleString('th-TH', {
             year: 'numeric',
             month: 'long',
@@ -647,7 +647,7 @@
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
-            alert("??????????????????????????");
+            alert("กรุณาปิดหน้าต่างด้วยตัวเอง");
         }
     });
 
